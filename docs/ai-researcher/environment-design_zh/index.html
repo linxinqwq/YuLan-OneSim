@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-ai-researcher/environment-design_zh" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.8.1">
+<title data-rh="true">Environment Design Module | YuLan-OneSim</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/environment-design_zh"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Environment Design Module | YuLan-OneSim"><meta data-rh="true" name="description" content="本模块负责将研究者的初始自然语言想法，转化为一个结构化、标准化的模拟实验环境。它的核心产出是一份详尽的 ODD (Overview, Design Concepts, Details) 协议 和相应的目录结构。"><meta data-rh="true" property="og:description" content="本模块负责将研究者的初始自然语言想法，转化为一个结构化、标准化的模拟实验环境。它的核心产出是一份详尽的 ODD (Overview, Design Concepts, Details) 协议 和相应的目录结构。"><link data-rh="true" rel="icon" href="/YuLan-OneSim/img/favicon.png"><link data-rh="true" rel="canonical" href="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/environment-design_zh"><link data-rh="true" rel="alternate" href="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/environment-design_zh" hreflang="en"><link data-rh="true" rel="alternate" href="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/environment-design_zh" hreflang="x-default"><script src="https://buttons.github.io/buttons.js" async defer="defer"></script><link rel="stylesheet" href="/YuLan-OneSim/assets/css/styles.b347f964.css">
+<script src="/YuLan-OneSim/assets/js/runtime~main.848bc8aa.js" defer="defer"></script>
+<script src="/YuLan-OneSim/assets/js/main.e5c19ad1.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/YuLan-OneSim/"><div class="navbar__logo"><img src="/YuLan-OneSim/img/logo.png" alt="YuLan-OneSim Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/YuLan-OneSim/img/logo.png" alt="YuLan-OneSim Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/YuLan-OneSim/docs/overview/introduction">Docs</a><a href="https://arxiv.org/abs/2505.07581" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Paper<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://www.youtube.com/watch?v=GSW2A76FIyw" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Video Demo<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/RUC-GSAI/YuLan-OneSim" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><main class="docMainContainer_TBSr docMainContainerEnhanced_lQrH"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>实验环境设计 (Environment Design)</h1></header>
+<p>本模块负责将研究者的初始自然语言想法，转化为一个结构化、标准化的模拟实验环境。它的核心产出是一份详尽的 <strong>ODD (Overview, Design Concepts, Details) 协议</strong> 和相应的目录结构。</p>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="核心逻辑">核心逻辑<a href="#核心逻辑" class="hash-link" aria-label="Direct link to 核心逻辑" title="Direct link to 核心逻辑">​</a></h2>
+<p>实验设计功能由主脚本 <code>src/researcher/env_design.py</code> 驱动。该脚本扮演着“协调员”的角色，依次调用一系列专门的大模型智能体（LLM Agents），引导它们协作完成从概念到协议的转化过程。</p>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="关键智能体-key-agents">关键智能体 (Key Agents)<a href="#关键智能体-key-agents" class="hash-link" aria-label="Direct link to 关键智能体 (Key Agents)" title="Direct link to 关键智能体 (Key Agents)">​</a></h2>
+<p>这些智能体位于 <code>src/researcher/env_design/</code> 目录中，各司其职：</p>
+<ul>
+<li>
+<p><strong><code>InspirationAgent</code> (灵感智能体)</strong></p>
+<ul>
+<li><strong>职责</strong>: 接收用户输入的宽泛研究主题（如 &quot;社交媒体对政治极化的影响&quot;）。</li>
+<li><strong>产出</strong>: 生成多个具体的、可执行的研究问题和场景设想，为后续步骤提供丰富的选项。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>EvaluatorAgent</code> (评估智能体)</strong></p>
+<ul>
+<li><strong>职责</strong>: 对 <code>InspirationAgent</code> 产生的多个场景进行评估。</li>
+<li><strong>评估维度</strong>: 主要考量研究场景的相关性、可行性、新颖性和潜在影响力。</li>
+<li><strong>产出</strong>: 选出最具有研究潜力的一个场景，并说明选择的理由。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>DetailerAgent</code> (详述智能体)</strong></p>
+<ul>
+<li><strong>职责</strong>: 这是本阶段的核心。它接收 <code>EvaluatorAgent</code> 选定的场景。</li>
+<li><strong>产出</strong>: 将该场景扩展成一份非常详细的 ODD 协议，内容严格遵循 ODD 规范。同时生成两种格式的协议 (<code>.md</code> 和 <code>.json</code>)，并提取关键场景信息。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>AssessorAgent</code> (评估智能体 - 可选)</strong></p>
+<ul>
+<li><strong>职责</strong>: 对 <code>DetailerAgent</code> 生成的 ODD 协议进行质量评估。</li>
+<li><strong>评估维度</strong>: 检查协议的完整性、清晰度、逻辑一致性和可操作性。</li>
+<li><strong>产出</strong>: 一份评估报告，帮助研究者判断生成的协议是否达到了可用于研究的标准。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="工作流程与产出物">工作流程与产出物<a href="#工作流程与产出物" class="hash-link" aria-label="Direct link to 工作流程与产出物" title="Direct link to 工作流程与产出物">​</a></h2>
+<p>当你运行 <code>env_design.py</code> 脚本时，系统会执行以下步骤：</p>
+<ol>
+<li><strong>接收输入</strong>: 获取用户提供的 <code>--topic</code> 和可选的 <code>--scene_name</code>。</li>
+<li><strong>目录创建</strong>: 在 <code>src/envs/</code> 路径下创建名为 <code>&lt;scene_name&gt;</code> 的新目录，作为本次模拟环境的根目录。</li>
+<li><strong>智能体协作</strong>: 按顺序执行上述智能体链，每一步的输出都作为下一步的输入。</li>
+<li><strong>保存结果</strong>: 所有中间和最终产物都被保存在 <code>src/envs/&lt;scene_name&gt;/research/env_design/</code> 目录下。</li>
+</ol>
+<p><strong>主要输入</strong>:</p>
+<ul>
+<li><code>--topic</code>: 一个描述研究兴趣的字符串。</li>
+</ul>
+<p><strong>主要输出文件</strong>:</p>
+<ul>
+<li><code>src/envs/&lt;scene_name&gt;/scene_info.json</code>: <strong>最重要的输出文件</strong>。它包含了整个环境的元数据，尤其是以 JSON 格式存储的完整 ODD 协议，供后续的报告生成模块使用。</li>
+<li><code>src/envs/&lt;scene_name&gt;/research/env_design/detailed_specification.md</code>: Markdown 格式的 ODD 协议，具有良好的可读性，方便研究者直接查看和修改。</li>
+<li><code>src/envs/&lt;scene_name&gt;/research/env_design/odd_protocol.json</code>: ODD 协议的 JSON 格式副本。</li>
+<li><code>src/envs/&lt;scene_name&gt;/research/env_design/inspiration_output.json</code>: <code>InspirationAgent</code> 生成的潜在研究问题列表。</li>
+<li><code>src/envs/&lt;scene_name&gt;/research/env_design/evaluator_output.json</code>: <code>EvaluatorAgent</code> 筛选出的场景及其理由。</li>
+<li><code>src/envs/&lt;scene_name&gt;/research/env_design/assessment_results.json</code> (可选): <code>AssessorAgent</code> 对 ODD 协议的评估结果。</li>
+</ul>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="如何使用">如何使用<a href="#如何使用" class="hash-link" aria-label="Direct link to 如何使用" title="Direct link to 如何使用">​</a></h2>
+<p>该模块主要通过命令行使用。你需要提供研究主题，并指定一个场景名称。</p>
+<p><strong>基本用法</strong>:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">python src/researcher/env_design.py </span><span class="token punctuation" style="color:rgb(248, 248, 242)">\</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token parameter variable" style="color:rgb(189, 147, 249);font-style:italic">--topic</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;你的研究主题&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">\</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token parameter variable" style="color:rgb(189, 147, 249);font-style:italic">--scene_name</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;你的场景名称&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">\</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token parameter variable" style="color:rgb(189, 147, 249);font-style:italic">--model_name</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;gpt-4o&quot;</span><br></span></code></pre></div></div>
+<ul>
+<li><code>--topic &lt;string&gt;</code>: <strong>(必需)</strong> 你的研究主题。</li>
+<li><code>--scene_name &lt;string&gt;</code>: (可选) 为环境指定的文件夹名称。若不提供，将自动生成一个。</li>
+<li><code>--assess</code>: (可选) 在生成后，对 ODD 协议进行质量评估。</li>
+<li><code>--save</code>: (可选) 保存每个智能体的中间输出文件。</li>
+</ul>
+<p><strong>查看完整的命令行和API示例，请前往 <a href="/YuLan-OneSim/docs/ai-researcher/examples">用法示例 (Examples)</a>。</strong></p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#核心逻辑" class="table-of-contents__link toc-highlight">核心逻辑</a></li><li><a href="#关键智能体-key-agents" class="table-of-contents__link toc-highlight">关键智能体 (Key Agents)</a></li><li><a href="#工作流程与产出物" class="table-of-contents__link toc-highlight">工作流程与产出物</a></li><li><a href="#如何使用" class="table-of-contents__link toc-highlight">如何使用</a></li></ul></div></div></div></div></main></div></div></div></div>
+</body>
+</html>

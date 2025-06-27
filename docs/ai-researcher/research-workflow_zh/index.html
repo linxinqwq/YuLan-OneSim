@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-ai-researcher/research-workflow_zh" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.8.1">
+<title data-rh="true">Research Workflow | YuLan-OneSim</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/research-workflow_zh"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Research Workflow | YuLan-OneSim"><meta data-rh="true" name="description" content="AI Social Researcher 工具包将复杂的社会模拟研究流程抽象为两个主要阶段，形成一个从灵感到报告的自动化闭环。理解这个工作流是高效使用本工具的关键。"><meta data-rh="true" property="og:description" content="AI Social Researcher 工具包将复杂的社会模拟研究流程抽象为两个主要阶段，形成一个从灵感到报告的自动化闭环。理解这个工作流是高效使用本工具的关键。"><link data-rh="true" rel="icon" href="/YuLan-OneSim/img/favicon.png"><link data-rh="true" rel="canonical" href="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/research-workflow_zh"><link data-rh="true" rel="alternate" href="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/research-workflow_zh" hreflang="en"><link data-rh="true" rel="alternate" href="https://ruc-gsai.github.io/YuLan-OneSim/docs/ai-researcher/research-workflow_zh" hreflang="x-default"><script src="https://buttons.github.io/buttons.js" async defer="defer"></script><link rel="stylesheet" href="/YuLan-OneSim/assets/css/styles.b347f964.css">
+<script src="/YuLan-OneSim/assets/js/runtime~main.848bc8aa.js" defer="defer"></script>
+<script src="/YuLan-OneSim/assets/js/main.e5c19ad1.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/YuLan-OneSim/"><div class="navbar__logo"><img src="/YuLan-OneSim/img/logo.png" alt="YuLan-OneSim Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/YuLan-OneSim/img/logo.png" alt="YuLan-OneSim Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/YuLan-OneSim/docs/overview/introduction">Docs</a><a href="https://arxiv.org/abs/2505.07581" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Paper<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://www.youtube.com/watch?v=GSW2A76FIyw" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Video Demo<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/RUC-GSAI/YuLan-OneSim" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><main class="docMainContainer_TBSr docMainContainerEnhanced_lQrH"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>研究工作流 (Research Workflow)</h1></header>
+<p><code>AI Social Researcher</code> 工具包将复杂的社会模拟研究流程抽象为两个主要阶段，形成一个从灵感到报告的自动化闭环。理解这个工作流是高效使用本工具的关键。</p>
+<hr>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="整体流程示意">整体流程示意<a href="#整体流程示意" class="hash-link" aria-label="Direct link to 整体流程示意" title="Direct link to 整体流程示意">​</a></h2>
+<p>整个工作流始于一个简单的自然语言想法，终于一份正式的 PDF 研究报告。</p>
+<p><strong>研究想法 (Natural Language Idea)</strong></p>
+<blockquote>
+<p>&quot;我想研究社交媒体对政治极化的影响。&quot;</p>
+</blockquote>
+<p>⬇</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="阶段一-实验环境设计-environment-design"><strong>阶段一: 实验环境设计 (Environment Design)</strong><a href="#阶段一-实验环境设计-environment-design" class="hash-link" aria-label="Direct link to 阶段一-实验环境设计-environment-design" title="Direct link to 阶段一-实验环境设计-environment-design">​</a></h3>
+<ul>
+<li><strong>目标</strong>: 将抽象的想法具体化、规范化。</li>
+<li><strong>过程</strong>:<!-- -->
+<ol>
+<li><strong>灵感激发</strong>: LLM Agent 根据初始主题，生成多个潜在的、更具体的研究问题和场景。</li>
+<li><strong>评估筛选</strong>: 另一个 Agent 评估这些场景的科研价值、可行性和新颖性，并选出最佳方案。</li>
+<li><strong>细节详述</strong>: 核心 Agent 将选定的场景，扩展为一份完整的 <strong>ODD (Overview, Design Concepts, Details) 协议</strong>。ODD 协议是社会模拟领域的标准文档，它精确描述了模拟的目的、实体、过程和调度。</li>
+<li><strong>环境搭建</strong>: 系统根据 ODD 协议，自动在 <code>src/envs/</code> 目录下创建一个新的场景文件夹 <code>&lt;scene_name&gt;</code>，并生成 <code>scene_info.json</code> (包含 ODD 协议的 JSON 格式) 等核心配置文件。</li>
+</ol>
+</li>
+<li><strong>产出</strong>: 一个结构化、标准化的模拟环境文件夹，准备好用于后续的模拟实验。</li>
+<li><strong>详情</strong>: <a href="/YuLan-OneSim/docs/ai-researcher/environment-design">实验环境设计文档</a></li>
+</ul>
+<p>⬇</p>
+<p><strong>(中间步骤: 用户运行模拟)</strong></p>
+<blockquote>
+<p>在这一步，用户需要利用阶段一生成的环境配置，运行实际的社会模拟程序。<code>AI Social Researcher</code> <strong>不执行</strong>模拟本身，而是处理模拟前和模拟后的工作。模拟过程应产生量化指标（metrics）和可视化图表（plots）。</p>
+</blockquote>
+<p>⬇</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="阶段二-研究报告生成-report-generation"><strong>阶段二: 研究报告生成 (Report Generation)</strong><a href="#阶段二-研究报告生成-report-generation" class="hash-link" aria-label="Direct link to 阶段二-研究报告生成-report-generation" title="Direct link to 阶段二-研究报告生成-report-generation">​</a></h3>
+<ul>
+<li><strong>目标</strong>: 将分散的模拟数据和图表，整合成一篇连贯、专业的学术报告。</li>
+<li><strong>过程</strong>:<!-- -->
+<ol>
+<li><strong>数据分析</strong>: LLM Agent 读取 <code>scene_info.json</code> 中的 ODD 协议、<code>metrics.py</code> 中的指标计算逻辑、以及 <code>metrics_plots/</code> 目录下的所有图表，对模拟结果进行综合分析，提取核心发现和洞察。</li>
+<li><strong>大纲构建</strong>: 基于分析得出的洞察，Agent 生成一份逻辑清晰的报告大纲，涵盖引言、方法、结果、讨论等标准章节。</li>
+<li><strong>报告撰写与编译</strong>: 系统根据大纲，逐章填充内容，将文字、图表和 ODD 协议中的方法论描述，编译成一份完整的 LaTeX 草稿。</li>
+<li><strong>（可选）审阅与迭代</strong>: <code>ReviewerAgent</code> 可以像同行评审一样，检查报告草稿的清晰度、逻辑性和完整性，并提出修改建议。系统根据这些建议自动修改报告，此过程可重复多次，以持续提升报告质量。</li>
+</ol>
+</li>
+<li><strong>产出</strong>: 一份存储在 <code>research/report/</code> 目录下的 <code>simulation_report_final.pdf</code> 文件。</li>
+<li><strong>详情</strong>: <a href="/YuLan-OneSim/docs/ai-researcher/report-generation">研究报告生成文档</a></li>
+</ul>
+<hr>
+<p>通过以上两个阶段，<code>AI Social Researcher</code> 实现了从一个模糊概念到一份精美报告的自动化飞跃。</p>
+<hr>
+<p><em>Documentation for YuLan-OneSim - A Next Generation Social Simulator with LLMs</em></p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#整体流程示意" class="table-of-contents__link toc-highlight">整体流程示意</a><ul><li><a href="#阶段一-实验环境设计-environment-design" class="table-of-contents__link toc-highlight"><strong>阶段一: 实验环境设计 (Environment Design)</strong></a></li><li><a href="#阶段二-研究报告生成-report-generation" class="table-of-contents__link toc-highlight"><strong>阶段二: 研究报告生成 (Report Generation)</strong></a></li></ul></li></ul></div></div></div></div></main></div></div></div></div>
+</body>
+</html>

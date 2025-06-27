@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_yulan_onesim_docs=self.webpackChunk_yulan_onesim_docs||[]).push([[8401],{1608:(s,n,e)=>{e.d(n,{A:()=>_});e(6540);var u=e(5552),c=e(4848);function _(s){return(0,c.jsx)(u.V,{...s})}}}]);
