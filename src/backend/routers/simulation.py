@@ -1025,13 +1025,13 @@ async def get_simulation_registry(env_name: str = ""):
 async def websocket_endpoint(websocket: WebSocket, env_name: str):
     """WebSocket连接端点，包含超时处理"""
     # 连接超时设置（秒）
-    DISCONNECT_TIMEOUT = 120  # 5分钟断开连接后结束模拟
-    EVENT_TIMEOUT = 120  # 5分钟没有新事件则结束模拟
-    
+    DISCONNECT_TIMEOUT = 120  # 2分钟断开连接后结束模拟
+    EVENT_TIMEOUT = 120  # 2分钟没有新事件则结束模拟
+
     await connection_manager.connect(websocket, env_name)
     logger.info(f"WebSocket connected: {env_name}")
     last_event_time = time.time()
-    
+
     try:
         # 发送初始状态
         if env_name in SIMULATION_REGISTRY:
@@ -1043,7 +1043,7 @@ async def websocket_endpoint(websocket: WebSocket, env_name: str):
                 "step": registry["step"],
                 "time": time.time()
             })
-        
+
         # 等待消息的同时检查超时
         while True:
             try:
@@ -1052,16 +1052,13 @@ async def websocket_endpoint(websocket: WebSocket, env_name: str):
                     websocket.receive_text(), 
                     timeout=30  # 每30秒检查一次超时状态
                 )
-                
-                # 收到消息后更新最后事件时间
-                last_event_time = time.time()
-                
+
                 # 在这里可以处理接收到的WebSocket消息的逻辑
-                
+
             except asyncio.TimeoutError:
                 # 检查是否超出没有事件的时间限制
                 current_time = time.time()
-                
+
                 # 检查模拟是否正在运行
                 if env_name in SIMULATION_REGISTRY:
                     # 如果是暂停状态，不触发超时
@@ -1069,41 +1066,57 @@ async def websocket_endpoint(websocket: WebSocket, env_name: str):
                         # 暂停状态下重置最后事件时间，避免暂停后恢复立即触发超时
                         last_event_time = current_time
                         continue
-                    
-                    # 只有在运行状态且超时时才触发结束模拟
-                    if (SIMULATION_REGISTRY[env_name].get("running", False) and 
-                        not SIMULATION_REGISTRY[env_name].get("paused", False) and
-                        current_time - last_event_time > EVENT_TIMEOUT):
-                        
+
+                    # 获取模拟环境的最后事件时间
+                    sim_env = SIMULATION_REGISTRY[env_name].get("sim_env")
+                    should_stop = False
+
+                    if sim_env and hasattr(sim_env, '_last_event_time'):
+                        sim_last_event_time = sim_env._last_event_time
+                        # 只有在运行状态且超时时才触发结束模拟
+                        should_stop = (
+                            SIMULATION_REGISTRY[env_name].get("running", False)
+                            and not SIMULATION_REGISTRY[env_name].get("paused", False)
+                            and current_time - sim_last_event_time > EVENT_TIMEOUT
+                        )
+                    else:
+                        # 如果无法获取sim_env的时间，回退到原来的逻辑
+                        should_stop = (
+                            SIMULATION_REGISTRY[env_name].get("running", False)
+                            and not SIMULATION_REGISTRY[env_name].get("paused", False)
+                            and current_time - last_event_time > EVENT_TIMEOUT
+                        )
+
+                    if should_stop:
                         logger.warning(f"环境 '{env_name}' 超过 {EVENT_TIMEOUT} 秒没有新事件，自动结束模拟")
-                        
+
                         try:
                             # 调用停止模拟的逻辑
                             from backend.models.simulation import StopSimulationRequest
                             stop_data = StopSimulationRequest(env_name=env_name)
                             await stop_simulation(stop_data)
                             SIMULATION_REGISTRY[env_name]["running"] = False
-                            
+
                         except Exception as e:
                             logger.error(f"停止模拟时发生错误: {e}")
                         break  # 结束WebSocket循环
-                
+
                 # 如果没超时，就继续循环
                 continue
-                
+
     except WebSocketDisconnect:
         logger.info(f"WebSocket客户端断开连接: {env_name}")
-        
+
         # 检查是否有其他连接
         has_other_connections = False
         if env_name in connection_manager.active_connections:
             # 移除当前连接
             if websocket in connection_manager.active_connections[env_name]:
                 connection_manager.active_connections[env_name].remove(websocket)
-            
+
             # 检查是否还有其他连接
             has_other_connections = len(connection_manager.active_connections[env_name]) > 0
-        
+
         # 如果没有其他连接，并且模拟正在运行，启动定时任务检查断开超时
         if not has_other_connections and env_name in SIMULATION_REGISTRY and SIMULATION_REGISTRY[env_name].get("running", False):
             try:
@@ -1111,12 +1124,12 @@ async def websocket_endpoint(websocket: WebSocket, env_name: str):
                 async def disconnect_timeout_handler():
                     logger.info(f"等待 {DISCONNECT_TIMEOUT} 秒后检查环境 '{env_name}' 的连接状态")
                     await asyncio.sleep(DISCONNECT_TIMEOUT)
-                    
+
                     # 再次检查是否仍然没有连接
                     if (env_name not in connection_manager.active_connections or 
                         len(connection_manager.active_connections[env_name]) == 0):
                         logger.warning(f"环境 '{env_name}' 的所有客户端已断开连接 {DISCONNECT_TIMEOUT} 秒，自动结束模拟")
-                        
+
                         # 调用停止模拟的逻辑
                         if env_name in SIMULATION_REGISTRY and SIMULATION_REGISTRY[env_name].get("running", False):
                             from backend.models.simulation import StopSimulationRequest

@@ -542,7 +542,15 @@ class BasicSimEnv:
     # Methods to queue events and decisions for later saving
     async def queue_event(self, event_data: Dict[str, Any]):
         """Queue an event to be saved at the end of the step and broadcast it"""
-
+        if event_data['event_type'] in [
+            'DataEvent',
+            'DataUpdateEvent',
+            'DataResponseEvent',
+            'DataUpdateResponseEvent',
+            'PauseEvent',
+            'ResumeEvent',
+        ]:
+            return
         self._pending_events.append(event_data)
 
         # Get environment name from path
@@ -555,8 +563,31 @@ class BasicSimEnv:
         if 'backend' not in sys.modules:
             return
         from backend.utils.websocket import connection_manager
-        # Broadcast event asynchronously
-        asyncio.create_task(connection_manager.broadcast_event(env_name, event_data))
+
+        # Check if there are active WebSocket connections before broadcasting
+        if connection_manager.has_active_connections(env_name):
+            # Send any buffered events first (only once)
+            await self._send_buffered_events(env_name, connection_manager)
+            # Then broadcast current event
+            asyncio.create_task(
+                connection_manager.broadcast_event(env_name, event_data)
+            )
+        else:
+            # If no connections, buffer all events
+            if not hasattr(self, '_buffered_events'):
+                self._buffered_events = []
+            self._buffered_events.append(event_data)
+
+    async def _send_buffered_events(self, env_name: str, connection_manager):
+        """Send all buffered events to frontend and clear the buffer"""
+        if hasattr(self, '_buffered_events') and self._buffered_events:
+            logger.info(
+                f"Sending {len(self._buffered_events)} buffered events to {env_name}"
+            )
+            for buffered_event in self._buffered_events:
+                await connection_manager.broadcast_event(env_name, buffered_event)
+            # Clear the buffer after sending (ensure events are sent only once)
+            self._buffered_events = []
 
     async def queue_decision(self, decision_data: Dict[str, Any]):
         """Queue a decision to be saved at the end of the step"""
@@ -663,6 +694,17 @@ class BasicSimEnv:
             logger.debug(f"Skipping step completion check - paused: {self._pause_signal.is_set()}, terminated: {self.is_terminated()}")
             return
 
+        # Prevent duplicate completion checks for the same step
+        step_start_time_key = f'step_{self.current_step}_time_start'
+        step_end_time_key = f'step_{self.current_step}_time_end'
+
+        # If this step has already been completed, skip
+        if self.data.get(step_end_time_key, 0) > 0:
+            logger.debug(
+                f"Step {self.current_step} already completed, skipping duplicate check"
+            )
+            return
+
         # Calculate dynamic timeout
         idle_timeout = self.config.bus_idle_timeout # Default timeout
 
@@ -682,7 +724,6 @@ class BasicSimEnv:
             if long_idle:
                 logger.warning(f"Step {self.current_step} (Round Mode) completed due to idle timeout (dynamic timeout: {idle_timeout:.1f}s)")
 
-            step_start_time_key = f'step_{self.current_step}_time_start'
             step_duration = current_time - self.data.get(step_start_time_key, current_time)
 
             # Store round duration in round_data before saving
@@ -693,6 +734,9 @@ class BasicSimEnv:
 
             logger.info(f"Step {self.current_step} (Round Mode) Time: {step_duration:.2f} seconds")
             logger.info(f"Total Time: {self.tot_time:.2f} seconds")
+            # Mark this step as completed to prevent duplicate processing
+            self.data[step_end_time_key] = current_time
+
             # Save round data *before* potentially stopping
             await self._save_step_data(self.current_step)
 
@@ -704,7 +748,7 @@ class BasicSimEnv:
 
             # Reset pause time accumulator for the next round
             self._pause_cumulative_time = 0.0
-
+            self._last_event_time = time.time()
             if self.current_step < self.max_steps:
                 self.current_step += 1
                 await self.start()
