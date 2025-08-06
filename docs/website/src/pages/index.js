@@ -192,7 +192,7 @@ export default function Home() {
 									<span>🚀 Next Generation Social Simulator</span>
 								</div>
 								<h1 className="hero-title">
-									<img src="/YuLan-OneSim/img/logo.png" alt="YuLan Flower" className="hero-logo" />
+									<img src="/YuLan-OneSim/img/logo.png" alt="YuLan OneSim" className="hero-logo" />
 									<span className="gradient-text">YuLan-OneSim</span>
 								</h1>
 								<p className="hero-subtitle">
@@ -203,7 +203,7 @@ export default function Home() {
 								Leverage powerful LLM agents to model human behavior, explore social dynamics, and advance social science research with user-friendly simulation platform. 
 								</p>
 								<div className="hero-buttons">
-									<a className="button-primary" href="/docs/getting-started/requirements">
+									<a className="button-primary" href="/YuLan-OneSim/docs/getting-started/requirements">
 										<span>🚀 Get Started</span>
 									</a>
 									<a className="button-secondary" href="https://github.com/RUC-GSAI/YuLan-OneSim">
@@ -386,7 +386,7 @@ export default function Home() {
 					<div className="domains-carousel">
 						<div className="domains-scroll">
 							{researchDomains.map((domain, index) => (
-								<a key={index} href={`/docs/scenarios/built-in-scenarios#${domain.domain.toLowerCase()}`} className="domain-card-link">
+								<a key={index} href={`/YuLan-OneSim/docs/scenarios/built-in-scenarios#${domain.domain.toLowerCase()}`} className="domain-card-link">
 									<div className="domain-card">
 										<h3 className="domain-title">{domain.domain}</h3>
 										<div className="scenarios-list">
@@ -413,7 +413,7 @@ export default function Home() {
 							<p>Join researchers worldwide using YuLan-OneSim to advance social science understanding</p>
 						</div>
 						<div className="cta-buttons-inline">
-							<a className="button-primary" href="/docs/overview/introduction">
+							<a className="button-primary" href="/YuLan-OneSim/docs/overview/introduction">
 								<span>📖 Explore Documentation</span>
 							</a>
 							<a className="button-secondary" href="https://www.bilibili.com/video/BV1JJKoztEc9/?share_source=copy_web&vd_source=8400639fd585f4c18394d40a3dcc0743">
