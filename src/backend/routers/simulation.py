@@ -513,11 +513,6 @@ async def start_simulation(data: StartSimulationRequest):
                 # 运行事件总线任务
                 event_bus_task = asyncio.create_task(event_bus.run())
 
-                # 确保环境任务是Task对象
-                env_task_coroutines = await sim_env.run()
-                env_tasks = [asyncio.create_task(task) if not isinstance(task, asyncio.Task) else task 
-                             for task in env_task_coroutines]
-
                 # 全部任务列表
                 all_tasks = [event_bus_task] + agent_tasks + env_tasks
 
