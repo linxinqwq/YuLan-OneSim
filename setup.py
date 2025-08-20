@@ -24,6 +24,7 @@ required_packages = [
     "pyyaml",
     "openai",
     "volcengine-python-sdk",
+    "requests",
 ]
 
 # Optional dependencies for tuning

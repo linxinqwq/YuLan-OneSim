@@ -22,6 +22,23 @@ The simulation configuration file controls general simulation parameters:
     }
   },
   "agent": {
+    "profile": {
+      "Employer": {
+        "count": 5,                             // Number of agents
+        "profile_path": "Employer.json",        // Path to the profile data file under the profile/data folder
+        "schema_path": "Employer.json"          // Path to the profile schema file under the profile/schema folder
+      },
+      "JobSeeker": {
+        "count": 5,
+        "profile_path": "JobSeeker.json",
+        "schema_path": "JobSeeker.json"
+      },
+      "RecruitmentChannel": {
+        "count": 5,
+        "profile_path": "RecruitmentChannel.json",
+        "schema_path": "RecruitmentChannel.json"
+      }
+    },
     "planning": "COTPlanning",                  // Agent planning algorithm
     "memory": {
       "strategy": "ShortLongStrategy",          // Memory management strategy

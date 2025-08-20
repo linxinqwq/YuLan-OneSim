@@ -16,6 +16,23 @@
         }
     },
     "agent": {
+        "profile": {
+            "Employer": {
+                "count": 5,
+                "profile_path": "Employer.json",
+                "schema_path": "Employer.json"
+            },
+            "JobSeeker": {
+                "count": 5,
+                "profile_path": "JobSeeker.json",
+                "schema_path": "JobSeeker.json"
+            },
+            "RecruitmentChannel": {
+                "count": 5,
+                "profile_path": "RecruitmentChannel.json",
+                "schema_path": "RecruitmentChannel.json"
+            }
+        },
         "planning": "COTPlanning",
         "memory": {
             "strategy": "ShortLongStrategy",
