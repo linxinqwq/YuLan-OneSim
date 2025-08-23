@@ -995,19 +995,27 @@ export default {
         console.log(profileData, "profileData");
 
         // API请求保存数据
-        axios.post('/api/agent/update_profile', {
+        await axios.post('/api/agent/update_profile', {
           env_name: localStorage.getItem('scenarioName'),
           agent_id: selectedCharacter.value.id,
           profile_data: profileData
-        }).then((res)=>{
-          console.log('人物属性修改返回值：',res);
-        })
-
+        });
+        
+        console.log('人物属性保存成功');
+        
+        // 保存成功后，立即更新本地数据
+        selectedCharacter.value.profile = { ...profileData };
+        
         // 退出编辑模式
         isEditing.value = false;
         
-        // 请求更新角色数据
-        // gameStore.fetchAgentsData();
+        // 同时更新gameStore中的数据，保持数据一致性
+        const allCharacters = gameStore.getAllCharacters || [];
+        const characterIndex = allCharacters.findIndex(char => char.agentId === selectedCharacter.value.id);
+        if (characterIndex !== -1) {
+          allCharacters[characterIndex].profile = { ...profileData };
+        }
+        
       } catch (error) {
         console.error('保存角色数据失败:', error);
         ElMessage.error('保存失败，请重试');

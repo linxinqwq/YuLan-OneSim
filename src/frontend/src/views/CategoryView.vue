@@ -143,6 +143,7 @@ const loadData = async () => {
   localStorage.removeItem("scenarioName");
   try {
     const response = await axios.get("/api/scenes/" + props.category);
+    console.log(response);
     let resData = response.data;
     let subcategoriesData = {};
     for (let i in resData) {

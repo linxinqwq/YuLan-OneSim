@@ -78,20 +78,22 @@ class ProfileAgent(AgentBase):
         4. Return your answer as a JSON object with agent types as keys and portrait IDs (integers 1-5) as values
         
         Example output format:
+        ```json
         {{
           "AgentType1": 2,
           "AgentType2": 4,
           "AgentType3": 1
         }}
+        ```
         """
-        
+
         parser = JsonBlockParser()
         prompt = self.model.format(
             Message("system", self.sys_prompt, role="system"),
             Message("user", prompt + parser.content_hint, role="user")
         )
         response = self.model(prompt)
-        
+
         try:
             res = parser.parse(response)
             portrait_assignments = res.parsed
@@ -100,20 +102,22 @@ class ProfileAgent(AgentBase):
             raise ValueError("LLM response is not valid JSON.")
 
     def generate_agent_types(self,description):
-        
+
         prompt = (
-        f"Given the following description: {description}, identify or infer relevant agent types "
-        "and return them as a JSON object where keys are PascalCase agent type names and values are short descriptions of each agent type.\n\n"
-        "Requirements:\n"
-        "1. Each agent type should be in English and formatted in PascalCase (capitalize each word, with no spaces or special characters).\n"
-        "2. Ensure each agent name is concise, clearly reflects its role, and accurately represents the agent's primary function within a multi-agent system.\n"
-        "3. Each agent type should include a brief description (1-2 sentences) explaining its role and responsibility.\n"
-        "4. If no explicit agent types are present in the description, infer and include plausible agent types to establish a functional multi-agent system based on the described roles and actions.\n\n"
-        "Return the agent types as a JSON object with the following format:\n"
-        "{\n"
-        "  \"AgentType1\": \"Brief description of AgentType1's role\",\n"
-        "  \"AgentType2\": \"Brief description of AgentType2's role\"\n"
-        "}\n"
+            f"Given the following description: {description}, identify or infer relevant agent types "
+            "and return them as a JSON object where keys are PascalCase agent type names and values are short descriptions of each agent type.\n\n"
+            "Requirements:\n"
+            "1. Each agent type should be in English and formatted in PascalCase (capitalize each word, with no spaces or special characters).\n"
+            "2. Ensure each agent name is concise, clearly reflects its role, and accurately represents the agent's primary function within a multi-agent system.\n"
+            "3. Each agent type should include a brief description (1-2 sentences) explaining its role and responsibility.\n"
+            "4. If no explicit agent types are present in the description, infer and include plausible agent types to establish a functional multi-agent system based on the described roles and actions.\n\n"
+            "Return the agent types as a JSON object with the following format:\n"
+            "```json\n"
+            "{\n"
+            "  \"AgentType1\": \"Brief description of AgentType1's role\",\n"
+            "  \"AgentType2\": \"Brief description of AgentType2's role\"\n"
+            "}\n"
+            "```"
         )
         parser=JsonBlockParser()
         prompt = self.model.format(
@@ -123,13 +127,12 @@ class ProfileAgent(AgentBase):
         response = self.model(prompt)
         # Parse the LLM's JSON response
         try:
-            
+
             res=parser.parse(response)
             agent_types = res.parsed
             return agent_types
         except json.JSONDecodeError:
             raise ValueError("LLM response is not valid JSON.")
-        
 
     def merge_relationships(self,relationships):
         """
@@ -173,7 +176,7 @@ class ProfileAgent(AgentBase):
         merged_relationships = list(merged.values())
 
         return merged_relationships
-    
+
     def generate_relationship_schema(self, agent_types, actions, events):
         """Generate relationship schema based on events graph.
         
@@ -187,32 +190,32 @@ class ProfileAgent(AgentBase):
         """
         # Track connections between agent types
         connections = {}
-        
+
         # Analyze events to build connection graph
         for event_id, event in events.items():
             from_agent = event['from_agent_type']
             to_agent = event['to_agent_type']
-            
+
             # Skip environment agent connections
             if from_agent == 'EnvAgent' or to_agent == 'EnvAgent':
                 continue
-                
+
             # Initialize connection if not exists
             key = (from_agent, to_agent)
             reverse_key = (to_agent, from_agent)
-            
+
             if key not in connections and reverse_key not in connections:
                 connections[key] = {
                     'forward': False,  # Connection from source to target
                     'reverse': False   # Connection from target to source
                 }
-                
+
             # Mark connection direction
             if key in connections:
                 connections[key]['forward'] = True
             else:
                 connections[reverse_key]['reverse'] = True
-                
+
         # Generate relationships based on connections
         relationships = []
         for (source, target), connection in connections.items():
@@ -221,7 +224,7 @@ class ProfileAgent(AgentBase):
                 direction = 'bidirectional'
             else:
                 direction = 'unidirectional'
-                
+
             # Create relationship object
             relationship = {
                 'source_agent': source,
@@ -230,10 +233,8 @@ class ProfileAgent(AgentBase):
                 'direction': direction
             }
             relationships.append(relationship)
-        
+
         return relationships
-
-
 
     def generate_profile_schema(self, scenario_description, agent_name, agent_data_model):
         prompt = """ Please generate a Profile Config Schema for an Agent in a multi-agent scenario, based on the following scenario description, Agent name, and existing data model. The Schema should adhere to the following rules:
@@ -391,8 +392,6 @@ class ProfileAgent(AgentBase):
             return agent_schema
         except json.JSONDecodeError:
             raise ValueError("LLM response is not valid JSON.")
-        
-
 
     def generate_env_data(self, env_data_schema, description):
         prompt = f""" Transform the provided environment data schema into a realistic JSON object with contextually appropriate values for simulation.

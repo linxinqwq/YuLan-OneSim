@@ -1454,6 +1454,37 @@ export default {
           }
         });
 
+        sprite.on('mouseover', (event) => {
+          // 找到对应的角色数据并暂停移动
+          const character = gameStore.characters.find(char => 
+            (char.id === sprite.agentId || char.agentId === sprite.agentId)
+          );
+          
+          if (character) {
+            character.isPausedByHover = true;
+            // 停止动画
+            if (character.animatedSprite && character.animatedSprite.playing) {
+              character.animatedSprite.stop();
+              character.animatedSprite.gotoAndStop(0);
+            }
+          }
+        });
+        
+        sprite.on('mouseout', (event) => {
+          // 找到对应的角色数据并恢复移动
+          const character = gameStore.characters.find(char => 
+            (char.id === sprite.agentId || char.agentId === sprite.agentId)
+          );
+          
+          if (character) {
+            character.isPausedByHover = false;
+            // 如果角色正在移动状态，重启动画
+            if (character.isMoving && character.animatedSprite && !character.animatedSprite.playing) {
+              character.animatedSprite.play();
+            }
+          }
+        });
+
         // 添加到人物图层
         sceneLayer.addChild(sprite);
 
@@ -1555,6 +1586,37 @@ export default {
           }
         });
 
+                 sprite.on('mouseover', (event) => {
+           // 找到对应的角色数据并暂停移动
+           const character = gameStore.characters.find(char => 
+             (char.id === sprite.agentId || char.agentId === sprite.agentId)
+           );
+           
+           if (character) {
+             character.isPausedByHover = true;
+             // 停止动画
+             if (character.animatedSprite && character.animatedSprite.playing) {
+               character.animatedSprite.stop();
+               character.animatedSprite.gotoAndStop(0);
+             }
+           }
+         });
+         
+         sprite.on('mouseout', (event) => {
+           // 找到对应的角色数据并恢复移动
+           const character = gameStore.characters.find(char => 
+             (char.id === sprite.agentId || char.agentId === sprite.agentId)
+           );
+           
+           if (character) {
+             character.isPausedByHover = false;
+             // 如果角色正在移动状态，重启动画
+             if (character.isMoving && character.animatedSprite && !character.animatedSprite.playing) {
+               character.animatedSprite.play();
+             }
+           }
+         });
+
         // 添加到人物图层
         sceneLayer.addChild(sprite);
 
@@ -1641,12 +1703,44 @@ export default {
           console.warn('相机控制器未初始化，无法查看角色详情');
         }
       });
+      
+             indoorSprite.on('mouseover', (event) => {
+         // 找到对应的角色数据并暂停移动
+         const character = gameStore.characters.find(char => 
+           (char.id === indoorSprite.agentId || char.agentId === indoorSprite.agentId)
+         );
+         
+         if (character) {
+           character.isPausedByHover = true;
+           // 停止动画
+           if (character.animatedSprite && character.animatedSprite.playing) {
+             character.animatedSprite.stop();
+             character.animatedSprite.gotoAndStop(0);
+           }
+         }
+       });
+       
+       indoorSprite.on('mouseout', (event) => {
+         // 找到对应的角色数据并恢复移动
+         const character = gameStore.characters.find(char => 
+           (char.id === indoorSprite.agentId || char.agentId === indoorSprite.agentId)
+         );
+         
+         if (character) {
+           character.isPausedByHover = false;
+           // 如果角色正在移动状态，重启动画
+           if (character.isMoving && character.animatedSprite && !character.animatedSprite.playing) {
+             character.animatedSprite.play();
+           }
+         }
+       });
 
       // 添加到目标精灵
       targetSprite.addChild(indoorSprite);
 
       return indoorSprite;
     };
+
     const generateAllIndoorCharacters = () => {
       // 检查是否有楼层精灵
       if (!isInitialized || !characterRenderer || !props.mapData || !sceneLayer) {

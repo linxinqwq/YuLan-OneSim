@@ -119,6 +119,7 @@ const toggleItem = (item) => {
 const selectSubcategory = (category, subcategory) => {
   activeCategory.value = category
   activeSubcategory.value = subcategory
+  console.log('模拟场景点击======',category,subcategory);
   router.push({
     name: "category",
     params: {

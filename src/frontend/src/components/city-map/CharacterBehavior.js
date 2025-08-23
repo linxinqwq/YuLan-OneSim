@@ -30,6 +30,11 @@ class CharacterBehavior {
    * @returns {boolean} 是否成功开始移动
    */
   moveRandomly(character, tileWidth, tileHeight, mapWidth, mapHeight) {
+    // 检查角色是否被鼠标悬停暂停
+    if (character.isPausedByHover) {
+      return false;
+    }
+
     // 重置建筑寻找计时器
     character.roadWalkingTime = 0;
     character.isSearchingBuilding = false;
@@ -755,6 +760,11 @@ class CharacterBehavior {
    * @param {Object} character 人物数据
    */
   moveRandomInRoom(character) {
+    // 检查角色是否被鼠标悬停暂停
+    if (character.isPausedByHover) {
+      return;
+    }
+
     if (!character.bounds || !character.isIndoor) {
       console.warn(`无法进行室内随机移动: ${character.id}`, character);
       return;
@@ -793,6 +803,11 @@ class CharacterBehavior {
    * @param {number} tileHeight 瓦片高度
    */
   updateWorkingCharacter(character, deltaTime, tileWidth, tileHeight) {
+    // 检查角色是否被鼠标悬停暂停
+    if (character.isPausedByHover) {
+      return;
+    }
+
     // 调用moveToWork设置移动目标和状态
     const hasReachedTarget = this.moveToWork(character, deltaTime);
 
@@ -816,6 +831,11 @@ class CharacterBehavior {
    * @param {number} tileHeight 瓦片高度
    */
   updateMovingCharacter(character, deltaTime, tileWidth, tileHeight) {
+    // 检查角色是否被鼠标悬停暂停
+    if (character.isPausedByHover) {
+      return;
+    }
+
     // 获取游戏状态store
     const gameStore = useGameStore();
 
@@ -1647,6 +1667,11 @@ class CharacterBehavior {
    * @param {number} gameSpeed 游戏速度倍率
    */
   updateIndoorRandomMovement(character, delta, gameSpeed) {
+    // 检查角色是否被鼠标悬停暂停
+    if (character.isPausedByHover) {
+      return;
+    }
+
     // console.log('updateIndoorRandomMovement', character, delta, gameSpeed);
     // 如果角色在室内但没有停留时间，重置停留时间
     if (character.indoorStayTime === undefined) {
@@ -1870,6 +1895,11 @@ class CharacterBehavior {
    * @param {number} tileHeight 瓦片高度
    */
   moveCharacterToTarget(character, deltaTime, tileWidth, tileHeight) {
+    // 检查角色是否被鼠标悬停暂停
+    if (character.isPausedByHover) {
+      return;
+    }
+
     // 计算当前位置到目标位置的向量
     const dx = character.targetX - character.sprite.x;
     const dy = character.targetY - character.sprite.y;

@@ -166,8 +166,8 @@
                     <div class="field-column">
                       <label>Context</label>
                       <el-select v-model="variable.context" placeholder="Context" class="field-type-select">
-                        <el-option label="local" value="local"></el-option>
-                        <el-option label="global" value="global"></el-option>
+                        <el-option label="agent" value="agent"></el-option>
+                        <el-option label="env" value="env"></el-option>
                       </el-select>
                     </div>
                   </div>
@@ -610,7 +610,6 @@ export default {
       axios.post("/api/pipeline/generate_workflow",{
         env_name: scenarioName
       }).then((response) => {
-        console.log(response, 'response')
         let status = response.data.success;
         if(response.data.success && response.data.success != '0'){
           if(status == '2'){
@@ -619,8 +618,8 @@ export default {
             },1000)
           }else if(status == '1'){
             this.workflow = response.data;
-            // 保存原始工作流数据
-            this.originalWorkflowData = response.data;
+            // 保存原始工作流数据 - 使用深拷贝避免数据污染
+            this.originalWorkflowData = JSON.parse(JSON.stringify(response.data));
             this.initEcharts();
           }else{
             this.loading = false;
@@ -845,7 +844,6 @@ export default {
         source: typeof link.source === "string" ? parseInt(link.source) : link.source,
         target: typeof link.target === "string" ? parseInt(link.target) : link.target,
       }));
-
       this.processTopologyData(originalData);
     },
 
@@ -1820,13 +1818,18 @@ export default {
           cancelButtonText: "Cancel",
           type: "warning"
         }
-      ).then(() => {
+      ).then(async () => {
         this.loading = true;
-        // 尝试加载原始数据
-        if (this.originalWorkflowData) {
-          this.loadTopology();
+        try {
+          // 尝试加载原始数据
+          if (this.originalWorkflowData) {
+            await this.loadTopology();
+            // 重置修改标志
+            this.isWorkflowChanged = false;
+          }
+        } finally {
+          this.loading = false;
         }
-        this.loading = false;
       }).catch(() => {
         // 用户取消操作，不做任何处理
       });
@@ -2358,8 +2361,7 @@ export default {
               this.workflow.events[
                 this.originalEventKey
               ].event_name = this.selectedLink.name;
-              this.workflow.events[this.originalEventKey].event_info =
-                this.selectedLink.info || "";
+              this.workflow.events[this.originalEventKey].event_info = this.selectedLink.info || "";
 
               // 更新字段
               if (this.linkFields && this.linkFields.length) {
@@ -2464,7 +2466,12 @@ export default {
                   })),
                 ],
               };
-
+              // 修改-1为最后一个节点的ID
+              updatedTopology.links = updatedTopology.links.map((link) => ({
+                ...link,
+                source: link.source === -1 ? updatedTopology.nodes.length : link.source,
+                target: link.target === -1 ? updatedTopology.nodes.length : link.target,
+              }));
               // 添加终止节点
               updatedTopology.nodes.push({
                 id: updatedTopology.nodes.length,
@@ -2472,7 +2479,6 @@ export default {
                 agentType: "EnvAgent",
                 color: "#29ebd7",
               });
-
               // 确保所有ID是数字类型
               updatedTopology.nodes = updatedTopology.nodes.map((node) => ({
                 ...node,

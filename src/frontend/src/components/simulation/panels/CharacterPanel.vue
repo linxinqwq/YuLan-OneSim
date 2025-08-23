@@ -10,15 +10,8 @@
       </el-input>
     </div>
     
-    <el-table
-      :data="currentPageData"
-      style="width: 100%"
-      border
-      stripe
-      class="character-table"
-      v-loading="loading"
-      @sort-change="handleSortChange"
-    >
+    <el-table :data="currentPageData" style="width: 100%" border stripe
+      class="character-table" v-loading="loading" @sort-change="handleSortChange">
       <!-- Fixed columns -->
       <!-- <el-table-column prop="id" label="ID" width="80" sortable="custom" /> -->
       <el-table-column prop="agentId" label="Agent ID" width="80" sortable="custom"/>
@@ -26,13 +19,9 @@
       <el-table-column prop="profile.agent_type" label="Type" width="120" sortable="custom"/>
       
       <!-- Dynamic columns -->
-      <el-table-column 
-        v-for="field in dynamicFields" 
-        :key="field.prop" 
-        :prop="field.prop" 
-        :label="field.label" 
-        sortable="custom"
-      />
+      <el-table-column v-for="field in dynamicFields" :key="field.prop" 
+        :prop="field.prop" :label="field.label" sortable="custom">
+      </el-table-column>
       
       <el-table-column label="Actions" width="230">
         <template #default="scope">

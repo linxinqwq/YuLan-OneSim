@@ -410,6 +410,7 @@ export default {
 
       // Message receiving handler
       socket.onmessage = (event) => {
+        console.log(event, "event")
         try {
           const data = JSON.parse(event.data);
           // Handle EndEvent
@@ -426,6 +427,7 @@ export default {
             );
             if (!isDuplicate) {
               eventData.push(data);
+              console.log("eventData",eventData)
               gameStore.eventsOriginalData = eventData;
             }
           }
@@ -443,6 +445,16 @@ export default {
       // Connection close handler
       socket.onclose = () => {
         console.log("WebSocket connection closed");
+        axios.post("/api/simulation/stop", {
+          env_name: localStorage.getItem('scenarioName'),
+        })
+        .then((res) => {
+          console.log(res, "end");
+          emit('control-clicked', 'finish');
+          gameStore.isPaused = true;
+          isEnd.value = true;
+          showEndStatusImage();
+        })
       };
 
       // // Save socket reference to gameStore for access elsewhere

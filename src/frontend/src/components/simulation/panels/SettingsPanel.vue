@@ -15,7 +15,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="Max Steps">
-					<el-input-number v-model="formData.environment.max_steps" :min="1" :max="3"></el-input-number>
+					<el-input-number v-model="formData.environment.max_steps" :min="1"></el-input-number>
 				</el-form-item>
 
 				<!-- Agent Settings -->
@@ -127,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, defineExpose, nextTick} from "vue";
+import { ref, reactive, computed, onMounted, defineExpose, nextTick } from "vue";
 import { User, Close } from "@element-plus/icons-vue";
 import { useGameStore } from "../../../stores/gameStore";
 import { ElMessageBox, ElMessage } from "element-plus";
@@ -289,33 +289,32 @@ const handleSubmit = () => {
 	ElMessageBox.confirm("Save Settings?", {
 		confirmButtonText: "OK",
 		cancelButtonText: "Cancel",
-	})
-		.then(() => {
-			const isDevMode = gameStore.isDevMode;
-			console.log("ok");
+	}).then(() => {
+		const isDevMode = gameStore.isDevMode;
+		console.log("ok");
 
-			let param = {
-				env_name: scenarioName,
-				config: formData,
-			};
-			axios.post(`/api/config/save`, param).then((res) => {
-				emit("settings-updated", formData);
-				isFormSubmitted.value = true;
-				ElMessage({
-					type: "success",
-					message: "Settings saved successfully",
-				});
-				getAgents();
-				// 通知父组件表单已提交
-				emit("form-submitted");
-			}).catch((err) => {
-				if (err.response?.data?.detail) {
-					ElMessage.error(err.response.data.detail);
-				} else {
-					ElMessage.error("Failed to save settings");
-				}
+		let param = {
+			env_name: scenarioName,
+			config: formData,
+		};
+		axios.post(`/api/config/save`, param).then((res) => {
+			emit("settings-updated", formData);
+			isFormSubmitted.value = true;
+			ElMessage({
+				type: "success",
+				message: "Settings saved successfully",
 			});
-		})
+			getAgents();
+			// 通知父组件表单已提交
+			emit("form-submitted");
+		}).catch((err) => {
+			if (err.response?.data?.detail) {
+				ElMessage.error(err.response.data.detail);
+			} else {
+				ElMessage.error("Failed to save settings");
+			}
+		});
+	})
 		.catch(() => {
 			console.log("cancel");
 			loading.value = false;
@@ -389,6 +388,11 @@ const getOptions = () => {
 			formData.agent.profile = res.data.agent.profile;
 			chat.value = res.data.model.chat;
 			embedding.value = res.data.model.embedding;
+			
+			formData.model.chat = chat.value[0]
+			formData.model.embedding = embedding.value[0]
+			formData.agent.memory = memory.value[0]
+			formData.agent.planning = planning.value[0]
 		});
 	}
 };
@@ -903,7 +907,8 @@ h2 {
 	background-color: var(--primary-color, #409eff);
 	color: #ffffff;
 }
-:deep(.el-select__wrapper){
+
+:deep(.el-select__wrapper) {
 	box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
 }
 
