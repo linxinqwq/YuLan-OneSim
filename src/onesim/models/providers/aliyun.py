@@ -93,6 +93,8 @@ class AliyunChatAdapter(ModelAdapterBase):
 
         try:
             resp = self.client.chat.completions.create(**call_kwargs)
+            if "usage" in resp.model_dump():
+                self._track_token_usage(resp.model_dump()["usage"])
             content = resp.choices[0].message.content
             return ModelResponse(
                 text=content,
@@ -132,6 +134,8 @@ class AliyunChatAdapter(ModelAdapterBase):
                 resp = await loop.run_in_executor(
                     None, lambda: self.client.chat.completions.create(**call_kwargs)
                 )
+            if "usage" in resp.model_dump():
+                self._track_token_usage(resp.model_dump()["usage"])
             content = resp.choices[0].message.content
             return ModelResponse(
                 text=content,
@@ -246,6 +250,8 @@ class AliyunEmbeddingAdapter(ModelAdapterBase):
             )
             data = resp.model_dump()
             embeddings = [item["embedding"] for item in data.get("data", [])]
+            if "usage" in data:
+                self._track_token_usage(data["usage"])
             return ModelResponse(embedding=embeddings, raw=data)
         except Exception as e:
             logger.error(f"Aliyun embedding sync call failed: {e}")
@@ -278,6 +284,8 @@ class AliyunEmbeddingAdapter(ModelAdapterBase):
                 )
                 data = resp.model_dump()
             embeddings = [item["embedding"] for item in data.get("data", [])]
+            if "usage" in data:
+                self._track_token_usage(data["usage"])
             return ModelResponse(embedding=embeddings, raw=data)
         except Exception as e:
             logger.error(f"Aliyun embedding async call failed: {e}")

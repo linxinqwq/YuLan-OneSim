@@ -9,7 +9,8 @@ from pydantic import BaseModel, field_validator
 from typing import Dict, Any, List, Optional
 from loguru import logger
 import onesim
-from onesim.config import get_component_registry
+from onesim.config import get_component_registry, get_config as get_onesim_config
+from onesim.models.core.model_manager import ModelManager
 from backend.models.config import ConfigOptions, ProfileCountRequest, ProfileCountResponse, SaveConfigRequest, SaveConfigResponse
 from backend.models.simulation import AgentInfo
 from backend.utils.model_management import load_model_if_needed, get_available_models
@@ -18,6 +19,55 @@ router = APIRouter(
     prefix="/config",
     tags=["config"],
 )
+
+
+class UpdateModelConfigRequest(BaseModel):
+    """模型配置更新请求"""
+    config: Dict[str, Any]
+    
+    @field_validator('config')
+    @classmethod
+    def validate_config(cls, v):
+        """验证配置格式"""
+        if not isinstance(v, dict):
+            raise ValueError("配置必须是字典格式")
+        
+        # 检查是否有chat或embedding字段
+        if 'chat' not in v and 'embedding' not in v:
+            raise ValueError("配置必须包含 'chat' 或 'embedding' 字段")
+        
+        # 验证chat配置
+        if 'chat' in v:
+            if not isinstance(v['chat'], list):
+                raise ValueError("'chat' 配置必须是列表格式")
+            for chat_config in v['chat']:
+                if not isinstance(chat_config, dict):
+                    raise ValueError("每个chat配置必须是字典格式")
+                required_fields = ['provider', 'config_name', 'model_name']
+                for field in required_fields:
+                    if field not in chat_config:
+                        raise ValueError(f"chat配置缺少必需字段: {field}")
+        
+        # 验证embedding配置
+        if 'embedding' in v:
+            if not isinstance(v['embedding'], list):
+                raise ValueError("'embedding' 配置必须是列表格式")
+            for emb_config in v['embedding']:
+                if not isinstance(emb_config, dict):
+                    raise ValueError("每个embedding配置必须是字典格式")
+                required_fields = ['provider', 'config_name', 'model_name']
+                for field in required_fields:
+                    if field not in emb_config:
+                        raise ValueError(f"embedding配置缺少必需字段: {field}")
+        
+        return v
+
+
+class UpdateModelConfigResponse(BaseModel):
+    """模型配置更新响应"""
+    success: bool
+    message: str
+    updated_models: Dict[str, List[str]] = {}
 
 
 # 存储用户配置
@@ -387,3 +437,111 @@ async def get_models(category: Optional[str] = None):
     except Exception as e:
         logger.error(f"获取模型失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取模型失败: {str(e)}")
+
+
+@router.put("/models/update", response_model=UpdateModelConfigResponse)
+async def update_model_config(request: UpdateModelConfigRequest):
+    """
+    更新模型配置
+    
+    接收一个与model_config.json格式相同的配置字典，
+    覆盖现有的model_config.json文件，并将新配置应用到内存中的ModelManager。
+    
+    参数:
+        request: 包含新模型配置的请求体
+    
+    返回:
+        UpdateModelConfigResponse: 更新结果
+    """
+    try:
+        config = request.config
+        
+        # 备份现有配置（如果存在）
+        backup_config = None
+        if os.path.exists(MODEL_CONFIG_PATH):
+            try:
+                with open(MODEL_CONFIG_PATH, 'r', encoding='utf-8') as f:
+                    backup_config = json.load(f)
+                logger.info("已备份现有模型配置")
+            except Exception as e:
+                logger.warning(f"无法备份现有配置: {e}")
+        
+        # 写入新配置到文件
+        try:
+            # 确保config目录存在
+            config_dir = os.path.dirname(MODEL_CONFIG_PATH)
+            os.makedirs(config_dir, exist_ok=True)
+            
+            # 写入新配置
+            with open(MODEL_CONFIG_PATH, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=4, ensure_ascii=False)
+            
+            logger.info(f"已更新模型配置文件: {MODEL_CONFIG_PATH}")
+            
+        except Exception as e:
+            logger.error(f"写入配置文件失败: {e}")
+            raise HTTPException(status_code=500, detail=f"写入配置文件失败: {str(e)}")
+        
+        # 更新内存中的ModelManager
+        try:
+            # 获取ModelManager单例实例
+            model_manager = ModelManager.get_instance()
+            
+            # 清除现有配置
+            model_manager.clear_configs()
+            
+            # 加载新配置
+            model_manager.load_model_configs(config)
+            
+            logger.info("已更新内存中的ModelManager配置")
+            
+        except Exception as e:
+            logger.error(f"更新ModelManager失败: {e}")
+            
+            # 尝试恢复备份配置
+            if backup_config:
+                try:
+                    with open(MODEL_CONFIG_PATH, 'w', encoding='utf-8') as f:
+                        json.dump(backup_config, f, indent=4, ensure_ascii=False)
+                    logger.info("已恢复备份配置")
+                except Exception as restore_e:
+                    logger.error(f"恢复备份配置失败: {restore_e}")
+            
+            raise HTTPException(status_code=500, detail=f"更新ModelManager失败: {str(e)}")
+        
+        # 尝试更新OneSim的全局配置
+        try:
+            onesim_config = get_onesim_config()
+            if onesim_config and hasattr(onesim_config, 'model_config'):
+                # 重新加载模型配置
+                onesim_config.model_config.load_from_dict(config)
+                logger.info("已更新OneSim全局配置中的模型配置")
+        except Exception as e:
+            logger.warning(f"更新OneSim全局配置失败（非关键错误）: {e}")
+        
+        # 收集更新后的模型信息
+        updated_models = {
+            "chat": [],
+            "embedding": []
+        }
+        
+        if "chat" in config:
+            updated_models["chat"] = [model.get("config_name", "") for model in config["chat"]]
+        
+        if "embedding" in config:
+            updated_models["embedding"] = [model.get("config_name", "") for model in config["embedding"]]
+        
+        total_updated = len(updated_models["chat"]) + len(updated_models["embedding"])
+        
+        return UpdateModelConfigResponse(
+            success=True,
+            message=f"成功更新模型配置，共更新了 {total_updated} 个模型配置",
+            updated_models=updated_models
+        )
+        
+    except HTTPException:
+        # 重新抛出HTTP异常
+        raise
+    except Exception as e:
+        logger.error(f"更新模型配置时发生未知错误: {e}")
+        raise HTTPException(status_code=500, detail=f"更新模型配置失败: {str(e)}")

@@ -7,6 +7,7 @@ import time
 import uuid
 from typing import List, Dict, Type, Optional
 import json
+from datetime import datetime
 
 from loguru import logger
 import onesim
@@ -260,16 +261,20 @@ async def initialize_environment(config: OneSimConfig, args) -> Optional[BasicSi
     # Use the environment settings from simulator_config
     env_settings = config.simulator_config.environment
 
+    # Create timestamped output directory
+    output_dir = create_timestamped_output_dir(config.env_path)
+
     sim_env = SimEnv(
-        config.env_name, 
-        event_bus, 
-        {},    # initial data
+        config.env_name,
+        event_bus,
+        {},  # initial data
         start_agent_ids,
         end_agent_ids,
         env_settings,
         agents,
         config.env_path,
-        trail_id  # Pass trail_id to environment
+        trail_id,  # Pass trail_id to environment
+        output_dir,  # Pass the timestamped output directory
     )
 
     # Register termination events
@@ -411,6 +416,13 @@ async def run_simulation(
                         except asyncio.CancelledError:
                             pass
 
+                    # Ensure environment fully stopped before node shutdown
+                    try:
+                        if hasattr(sim_env, 'stopped_event'):
+                            await sim_env.stopped_event.wait()
+                    except Exception as e:
+                        logger.warning(f"Waiting env stopped_event failed: {e}")
+
         elif node_role == NodeRole.WORKER:
             logger.info("Worker node starting event processing")
             agents = node.agents if node else {}
@@ -476,23 +488,23 @@ async def async_main():
     """Asynchronous main entry function"""
     # Parse command line arguments
     args = parse_args()
-    
+
     # Determine which components to initialize
     components_to_init = [COMPONENT_MODEL]
     components_to_init.append(COMPONENT_MONITOR)
-    
+
     # Initialize database if requested or if enabled in config
     if args.enable_db or ("--config" in sys.argv and is_database_enabled(args.config)):
         components_to_init.append(COMPONENT_DATABASE)
-    
+
     # # Initialize observation if requested
     # if args.enable_observation:
     #     components_to_init.append(COMPONENT_MONITOR)
-    
+
     # Initialize distribution component if not in single mode or if enabled in config
     if args.mode != "single" or ("--config" in sys.argv and is_distribution_enabled(args.config)):
         components_to_init.append(COMPONENT_DISTRIBUTION)
-    
+
     # Build initialization configuration
     init_config = {
         "distribution": {
@@ -506,7 +518,7 @@ async def async_main():
             "expected_workers": args.expected_workers
         }
     }
-    
+
     # Initialize OneSim with only the requested components
     await onesim.init(
         config_path=args.config,
@@ -514,7 +526,7 @@ async def async_main():
         components=components_to_init,
         **init_config
     )
-    
+
     # Load simulation configuration
     sim_config = onesim.load_simulation_config(
         args.config, 
@@ -525,7 +537,7 @@ async def async_main():
     # Determine if we're in distributed mode
     registry = get_component_registry()
     is_distributed = registry.is_initialized(COMPONENT_DISTRIBUTION)
-    
+
     # Initialize environment based on mode
     if not is_distributed:
         # Single mode
@@ -534,38 +546,44 @@ async def async_main():
     else:
         # Distributed mode (master/worker)
         node = registry.get_instance(COMPONENT_DISTRIBUTION)
-        
+
         # Initialize distributed environment
         env = await initialize_distributed_environment(sim_config, args)
-        
+
         if node.role == NodeRole.WORKER:
             # For worker, wait for agent creation
             logger.info(f"Worker node {node.node_id} waiting for agent creation...")
             await node.agents_created.wait()
             logger.info(f"Worker node {node.node_id} agents created: {sum(len(node.agents[t]) for t in node.agents)} agents")
-        
+
         await run_simulation(env, sim_config, args)
-        
+
         # Keep node alive until interrupted
         if node.role == NodeRole.WORKER:
-            # 等待master的终止信号，或者设置一个超时机制
-            stop_event = asyncio.Event()
+            # 由 WorkerNode 的 stopped_event 退出，不使用固定超时
             try:
-                # 设置超时，避免无限等待
-                await asyncio.wait_for(stop_event.wait(), timeout=10.0)
-            except asyncio.TimeoutError:
-                logger.info(f"Worker node {node.node_id} shutting down after timeout")
+                await node.stopped_event.wait()
             except KeyboardInterrupt:
                 logger.info("Worker stopping due to keyboard interrupt")
-            finally:
-                # 确保退出
-                logger.info(f"Worker node {node.node_id} shutting down")
-                # 可以在这里添加清理代码
-                return
+                # 键盘中断时执行一次清理
+                try:
+                    await node.shutdown()
+                except Exception as e:
+                    logger.error(f"Error during worker shutdown: {e}")
+            return
         else:
             # Master节点在模拟完成后也应该退出
             logger.info("Master node simulation completed, shutting down")
-            # 可以在这里添加清理代码
+            # 等待环境完全关闭，再优雅关闭Master分布式资源
+            try:
+                if hasattr(env, 'stopped_event'):
+                    await env.stopped_event.wait()
+            except Exception as e:
+                logger.warning(f"Waiting env stopped_event failed: {e}")
+            try:
+                await node.shutdown()
+            except Exception as e:
+                logger.error(f"Error during master shutdown: {e}")
             return
 
 def is_database_enabled(config_path):
@@ -590,6 +608,35 @@ def is_distribution_enabled(config_path):
         return config.get("distribution", {}).get("enabled", False)
     except Exception:
         return False
+
+
+def create_timestamped_output_dir(env_path: str) -> str:
+    """
+    Create a timestamped output directory under env_path/runs.
+
+    Args:
+        env_path (str): Path to the environment directory
+
+    Returns:
+        str: Path to the created timestamped output directory
+    """
+    if not env_path:
+        raise ValueError("env_path cannot be None or empty")
+
+    # Create timestamp in the format YYYYMMDD_HHMMSS
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Create runs directory under env_path
+    runs_dir = os.path.join(env_path, "runs")
+    os.makedirs(runs_dir, exist_ok=True)
+
+    # Create timestamped directory
+    output_dir = os.path.join(runs_dir, timestamp)
+    os.makedirs(output_dir, exist_ok=True)
+
+    logger.info(f"Created output directory: {output_dir}")
+    return output_dir
+
 
 def cli_entry_point():
     """Synchronous entry point for console script."""

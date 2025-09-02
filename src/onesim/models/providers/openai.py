@@ -250,6 +250,9 @@ class OpenAIChatAdapter(ModelAdapterBase):
                         "content": text
                     }
 
+                    if "usage" in last_chunk and last_chunk["usage"]:
+                        self._track_token_usage(last_chunk["usage"])
+
                 return ModelResponse(astream=generate_stream_async())
             else:
                 # Handle non-streaming response

@@ -49,6 +49,8 @@ class ArkChatAdapter(ModelAdapterBase):
                 messages=messages,
                 **call_args
             )
+            if "usage" in resp.model_dump():
+                self._track_token_usage(resp.model_dump()["usage"])
             assistant_message = resp.choices[0].message
             return ModelResponse(
                 text=assistant_message,
@@ -70,10 +72,12 @@ class ArkChatAdapter(ModelAdapterBase):
         **kwargs
     ) -> ModelResponse:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            None,
-            lambda: self.__call__(messages, stream=stream, **kwargs)
+        resp = await loop.run_in_executor(
+            None, lambda: self.__call__(messages, stream=stream, **kwargs)
         )
+        if "usage" in resp.model_dump():
+            self._track_token_usage(resp.model_dump()["usage"])
+        return resp
 
     def _validate_messages(self, messages: List[Dict[str, Any]]) -> None:
         if not isinstance(messages, list):
@@ -134,6 +138,8 @@ class ArkEmbeddingAdapter(ModelAdapterBase):
                 **{k: v for k, v in call_args.items() if k != 'encoding_format'}
             )
             embeddings = [item.embedding for item in resp.data]
+            if "usage" in resp.model_dump():
+                self._track_token_usage(resp.model_dump()["usage"])
             return ModelResponse(
                 embedding=embeddings,
                 raw=resp.__dict__,
@@ -153,10 +159,10 @@ class ArkEmbeddingAdapter(ModelAdapterBase):
         **kwargs
     ) -> ModelResponse:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            None,
-            lambda: self.__call__(texts, **kwargs)
-        )
+        resp = await loop.run_in_executor(None, lambda: self.__call__(texts, **kwargs))
+        if "usage" in resp.model_dump():
+            self._track_token_usage(resp.model_dump()["usage"])
+        return resp
 
     def format(self, *args: Union[str, Message, Sequence[Union[str, Message]]]) -> List[str]:
         texts: List[str] = []

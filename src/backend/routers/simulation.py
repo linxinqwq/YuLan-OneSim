@@ -101,6 +101,8 @@ async def initialize_simulation(env_name: str, model_name: str = None) -> dict:
         # 初始化必要的OneSim组件
         from onesim import init, COMPONENT_MODEL, COMPONENT_MONITOR, COMPONENT_DATABASE, COMPONENT_DISTRIBUTION
 
+        component_registry = get_component_registry()
+        component_registry.clear()
         # 转换组件名称为常量
         component_map = {
             "model": COMPONENT_MODEL,
@@ -241,6 +243,17 @@ async def initialize_simulation(env_name: str, model_name: str = None) -> dict:
         # 创建环境实例
         simulator_config = config.simulator_config
         env_settings = simulator_config.environment
+
+        # 创建带时间戳的输出目录
+        from datetime import datetime
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        runs_dir = os.path.join(env_path, "runs")
+        os.makedirs(runs_dir, exist_ok=True)
+        output_dir = os.path.join(runs_dir, timestamp)
+        os.makedirs(output_dir, exist_ok=True)
+        logger.info(f"Created output directory: {output_dir}")
+
         sim_env = SimEnv(
             env_name,
             event_bus,
@@ -251,6 +264,8 @@ async def initialize_simulation(env_name: str, model_name: str = None) -> dict:
             agents,
             env_path,
             trail_id,  # Pass trail_id to environment
+            None,  # intervention_engine
+            output_dir,  # Pass the timestamped output directory
         )
         end_events = work_graph.get_end_events()
         # Register termination events
@@ -628,24 +643,24 @@ async def start_simulation(data: StartSimulationRequest):
 async def stop_simulation(data: StopSimulationRequest):
     """停止仿真"""
     env_name = data.env_name
-    
+
     # Check if simulation exists
     if env_name not in SIMULATION_REGISTRY:
         raise HTTPException(status_code=404, detail=f"未找到环境 '{env_name}' 的仿真")
-    
+
     registry = SIMULATION_REGISTRY[env_name]
     if not registry.get("running", False):
         return StopSimulationResponse(
             success=True,
             message=f"环境 '{env_name}' 仿真未在运行"
         )
-    
+
     try:
         # Get the simulation environment
         sim_env = registry.get("sim_env")
         event_bus = registry.get("event_bus")
         agents = registry.get("agents")
-        
+
         # Retrieve the MonitorManager if available
         monitor_manager: Optional[MonitorManager] = None
         try:
@@ -662,55 +677,55 @@ async def stop_simulation(data: StopSimulationRequest):
             if "pause_event" in registry and isinstance(registry["pause_event"], asyncio.Event):
                 registry["pause_event"].set()
             registry["paused"] = False
-        
+
         # Set termination event if it exists
         if "termination_event" in registry and isinstance(registry["termination_event"], asyncio.Event):
             logger.info(f"设置终止事件，环境: '{env_name}'")
             registry["termination_event"].set()
-        
+
         # Also call stop_simulation on the sim_env
         if sim_env and hasattr(sim_env, "stop_simulation"):
             logger.info(f"停止仿真环境: '{env_name}'")
             await sim_env.stop_simulation()
-            
+
         # Stop monitor metrics if MonitorManager is available
         if monitor_manager and hasattr(monitor_manager, "stop_all_metrics"):
             logger.info(f"停止环境 '{env_name}' 的监控指标")
             await monitor_manager.stop_all_metrics()
-            
+
         # Cancel all tasks if they exist
         if "tasks" in registry and registry["tasks"]:
             logger.info(f"取消环境 '{env_name}' 的 {len(registry['tasks'])} 个任务")
             for task in registry["tasks"]:
                 if not task.done():
                     task.cancel()
-            
+
             # Wait for tasks to be properly canceled
             try:
                 await asyncio.gather(*registry["tasks"], return_exceptions=True)
             except Exception as e:
                 logger.error(f"等待任务取消时出错: {e}")
-                
+
         # 清除事件总线上的代理注册
         if event_bus:
             reset_event_bus()
-        
-        component_registry = get_component_registry()
-        component_registry.clear()
+
+        # component_registry = get_component_registry()
+        # component_registry.clear()
         # 清理资源引用
         logger.info(f"清理环境 '{env_name}' 的资源引用")
         if "termination_event" in registry:
             del registry["termination_event"]  # 删除终止事件引用
-            
+
         if "tasks" in registry:
             del registry["tasks"]  # 清理任务引用
-        
+
         # Mark simulation as not running
         registry["running"] = False
         registry["paused"] = False
         registry["status"] = "stopped"
         registry["needs_reinit"] = True  # 标记为需要重新初始化
-        
+
         # 广播停止事件
         stop_event = {
             "type": "EndEvent",
@@ -718,9 +733,9 @@ async def stop_simulation(data: StopSimulationRequest):
             "time": time.time(),
             "reason": "user_requested"
         }
-        
+
         await connection_manager.broadcast_event(env_name, stop_event)
-        
+
         await connection_manager.close_websocket_by_env_name(env_name)
         return StopSimulationResponse(
             success=True,
@@ -898,21 +913,124 @@ async def get_simulation_events(env_name: str):
     # 检查环境是否存在
     if env_name not in SIMULATION_REGISTRY:
         raise HTTPException(status_code=404, detail=f"环境 '{env_name}' 不存在或未初始化")
-    
+
     # 获取模拟环境
     registry = SIMULATION_REGISTRY[env_name]
     sim_env = registry.get("sim_env")
-    
+
     events = []
     if sim_env and hasattr(sim_env, "_pending_events"):
         # 从模拟环境中获取事件，而不是使用控制事件（暂停、停止等）
         events = sim_env._pending_events
-    
+
     return GetEventsResponse(
         success=True,
         message=f"获取事件成功: {env_name}",
         events=events
     )
+
+
+@router.get("/{env_name}/token_usage")
+async def get_token_usage_stats(env_name: str):
+    """获取当前统计的token使用情况，以及对应的模型的信息"""
+    # 检查环境是否存在
+    if env_name not in SIMULATION_REGISTRY:
+        raise HTTPException(
+            status_code=404, detail=f"环境 '{env_name}' 不存在或未初始化"
+        )
+
+    try:
+        # 导入token使用统计功能
+        from onesim.models.utils.token_usage import get_token_usage_stats
+        from onesim.models import ModelManager
+
+        # 获取token使用统计
+        token_stats = get_token_usage_stats()
+
+        # 获取模型管理器实例以获取模型配置信息
+        model_manager = ModelManager.get_instance()
+
+        # 构建模型信息列表
+        model_info_list = []
+        model_usage = token_stats.get("model_usage", {})
+
+        for model_name, usage_data in model_usage.items():
+            # 查找对应的模型配置
+            model_config = None
+            config_name = None
+
+            # 遍历所有模型配置，找到匹配的模型
+            for config_key, config in model_manager.model_configs.items():
+                # 检查模型名称是否匹配
+                if (
+                    config.get("model_name") == model_name
+                    or config.get("config_name") == model_name
+                    or model_name in config.get("model_name", "")
+                ):
+                    model_config = config
+                    config_name = config_key
+                    break
+
+            # 构建模型信息
+            model_info = {
+                "model_name": model_name,
+                "model_config_name": config_name,
+                "provider": (
+                    model_config.get("provider", "unknown")
+                    if model_config
+                    else "unknown"
+                ),
+                "category": (
+                    model_config.get("category", "unknown")
+                    if model_config
+                    else "unknown"
+                ),
+                "token_usage": {
+                    "total_tokens": usage_data.get("total_tokens", 0),
+                    "total_prompt_tokens": usage_data.get("prompt_tokens", 0),
+                    "total_completion_tokens": usage_data.get("completion_tokens", 0),
+                    "request_count": usage_data.get("request_count", 0),
+                },
+            }
+
+            # 如果有模型配置，添加更多详细信息
+            if model_config:
+                # 添加client_args
+                if "client_args" in model_config:
+                    model_info["client_args"] = model_config["client_args"]
+
+                # 添加生成参数(如果有)
+                if "generate_args" in model_config:
+                    model_info["generate_args"] = model_config["generate_args"]
+
+            model_info_list.append(model_info)
+
+        # 构建响应
+        response = {
+            "success": True,
+            "env_name": env_name,
+            "total_statistics": {
+                "total_tokens": token_stats.get("total_tokens", 0),
+                "total_prompt_tokens": token_stats.get("total_prompt_tokens", 0),
+                "total_completion_tokens": token_stats.get(
+                    "total_completion_tokens", 0
+                ),
+                "request_count": token_stats.get("request_count", 0),
+                "elapsed_time_seconds": token_stats.get("elapsed_time_seconds", 0),
+                "tokens_per_second": token_stats.get("tokens_per_second", 0),
+            },
+            "models": model_info_list,
+        }
+
+        return response
+
+    except ImportError:
+        logger.warning("Token使用模块不可用")
+        raise HTTPException(status_code=503, detail="Token使用统计功能不可用")
+    except Exception as e:
+        logger.error(f"获取token使用统计时出错: {e}")
+        raise HTTPException(status_code=500, detail=f"获取token使用统计失败: {str(e)}")
+
 
 @router.get("/list_environments")
 async def list_environments():

@@ -1169,12 +1169,12 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
     def __init__(self, worker_node):
         self.worker_node = worker_node
         # self.p2p_reply_info_cache = {} # Cache for P2P: request_id -> (reply_addr, reply_port)
-    
+
     async def SendEvent(self, request, context):
         """接收来自master或其他worker的事件"""
         try:
             event = proto_to_event(request) # proto_to_event should handle reply_to fields
-            
+
             # # Logic for P2P reply handling (if needed here, or primarily in GeneralAgent)
             # if hasattr(request, 'reply_to_worker_address') and request.reply_to_worker_address:
             #     # This is an initial request from another worker, store its reply info
@@ -1184,24 +1184,21 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
             #         self.p2p_reply_info_cache[request_id] = (request.reply_to_worker_address, request.reply_to_worker_port)
             #         logger.debug(f"Cached P2P reply info for {request_id} to {request.reply_to_worker_address}:{request.reply_to_worker_port}")
 
-
             await self.worker_node.handle_event(event)
             return agent_pb2.EventResponse(received=True)
         except Exception as e:
             logger.error(f"Error processing event in WorkerServicer: {e}")
             return agent_pb2.EventResponse(received=False)
-    
+
     async def StopSimulation(self, request, context):
         """处理来自master的停止仿真请求"""
         try:
             reason = request.reason
-            
-            # 停止仿真
-            success = await self.worker_node.handle_termination_signal(reason)
-            
+
+            # 先立即响应，再异步执行关停，避免在发送响应前就关闭gRPC服务导致对端报错
+            asyncio.create_task(self.worker_node.handle_termination_signal(reason))
             return agent_pb2.SimulationStopResponse(
-                acknowledged=success,
-                message="Acknowledged" if success else "Failed to process stop request"
+                acknowledged=True, message="Acknowledged"
             )
         except Exception as e:
             logger.error(f"Error stopping simulation: {e}")
@@ -1209,7 +1206,7 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
                 acknowledged=False,
                 message=str(e)
             )
-    
+
     async def CreateAgent(self, request, context):
         """接收创建agent的请求"""
         try:
@@ -1219,10 +1216,10 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
                 "id": request.agent_id,
                 "config": json.loads(request.config_json)
             }
-            
+
             # 创建agent
             agent_id = await self.worker_node.create_agent(agent_data)
-            
+
             return agent_pb2.CreateAgentResponse(
                 success=True,
                 agent_id=agent_id
@@ -1233,7 +1230,7 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
                 success=False,
                 message=str(e)
             )
-    
+
     async def CreateAgentsBatch(self, request, context):
         """接收批量创建agent的请求"""
         try:
@@ -1241,13 +1238,13 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
             agent_configs = []
             for config_json in request.configs_json:
                 agent_configs.append(json.loads(config_json))
-            
+
             # 批量创建agent
             agent_ids = await self.worker_node.create_agents_batch(agent_configs)
-            
+
             # Ensure all agent IDs are strings
             string_agent_ids = [str(agent_id) for agent_id in agent_ids]
-            
+
             return agent_pb2.CreateAgentsBatchResponse(
                 success=True,
                 agent_ids=string_agent_ids,
@@ -1289,7 +1286,7 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
     async def SendEventBatch(self, request, context): # This is for P2P batching if enabled
         # ... (existing code)
         pass # Placeholder for brevity
-        
+
     async def CollectDataBatch(self, request, context):
         """Handles a batch data collection request from the Master."""
         try:
@@ -1301,11 +1298,11 @@ class WorkerServicer(agent_pb2_grpc.AgentServiceServicer):
                     default_value = json.loads(request.default_value_json)
                 except json.JSONDecodeError:
                     logger.warning(f"Invalid default_value_json in CollectDataBatch: {request.default_value_json}")
-            
+
             collected_data = await self.worker_node.collect_local_agent_data_batch(
                 agent_type, data_key, default_value
             )
-            
+
             collected_data_json = json.dumps(collected_data)
             return agent_pb2.BatchDataResponse(
                 success=True,
@@ -1402,7 +1399,7 @@ def get_host_ip():
     except Exception:
         # 回退机制
         return socket.gethostbyname(socket.gethostname())
-    
+
 # 客户端异步函数
 async def register_with_master(master_address, master_port, worker_id, worker_port, worker_address=None):
     """Worker向Master注册"""
@@ -1485,17 +1482,37 @@ async def send_event_to_worker(worker_address, worker_port, event):
     """发送事件到worker节点"""
     try:
         proto_event = event_to_proto(event)
-        
-        response = await connection_manager.with_stub(
-            worker_address, 
-            worker_port, 
-            agent_pb2_grpc.AgentServiceStub, 
-            'SendEvent', 
-            proto_event
-        )
-        
+
+        try:
+            response = await connection_manager.with_stub(
+                worker_address,
+                worker_port,
+                agent_pb2_grpc.AgentServiceStub,
+                'SendEvent',
+                proto_event,
+            )
+        except RuntimeError as rt:
+            # Circuit breaker open or manager in shutdown; suppress and treat as delivered during shutdown
+            logger.warning(
+                f"SendEvent suppressed for {worker_address}:{worker_port}: {rt}"
+            )
+            return False
+
         return response.received
     except Exception as e:
+        try:
+            import grpc
+
+            if (
+                isinstance(e, grpc.aio.AioRpcError)
+                and e.code() == grpc.StatusCode.UNAVAILABLE
+            ):
+                logger.warning(
+                    f"Worker {worker_address}:{worker_port} unavailable for SendEvent during shutdown: {e.details()}"
+                )
+                return False
+        except Exception:
+            pass
         logger.error(f"Error sending event to worker {worker_address}:{worker_port}: {e}")
         return False
 
@@ -1503,28 +1520,49 @@ async def send_termination_to_worker(worker_address, worker_port, event):
     """发送终止信号到worker节点"""
     try:
         logger.info(f"Sending termination signal to worker at {worker_address}:{worker_port}")
-        
+
         request = agent_pb2.SimulationStopRequest(
             worker_id="MASTER",
             reason="simulation_terminated",
             timestamp=int(time.time() * 1000)
         )
-        
-        response = await connection_manager.with_stub(
-            worker_address, 
-            worker_port, 
-            agent_pb2_grpc.AgentServiceStub, 
-            'StopSimulation', 
-            request
-        )
-        
+
+        try:
+            response = await connection_manager.with_stub(
+                worker_address,
+                worker_port,
+                agent_pb2_grpc.AgentServiceStub,
+                'StopSimulation',
+                request,
+            )
+        except RuntimeError as rt:
+            # Circuit breaker open or manager in shutdown state; treat as acknowledged during shutdown
+            logger.warning(
+                f"Termination suppressed for {worker_address}:{worker_port}: {rt}"
+            )
+            return True
+
         if response.acknowledged:
             logger.info(f"Worker at {worker_address}:{worker_port} acknowledged termination")
         else:
             logger.warning(f"Worker at {worker_address}:{worker_port} did not acknowledge termination: {response.message}")
-            
+
         return response.acknowledged
     except Exception as e:
+        # Downgrade expected UNAVAILABLE during shutdown to warning to reduce noise
+        try:
+            import grpc
+
+            if (
+                isinstance(e, grpc.aio.AioRpcError)
+                and e.code() == grpc.StatusCode.UNAVAILABLE
+            ):
+                logger.warning(
+                    f"Worker {worker_address}:{worker_port} already unavailable during shutdown: {e.details()}"
+                )
+                return True
+        except Exception:
+            pass
         logger.error(f"Error sending termination to worker {worker_address}:{worker_port}: {e}")
         return False
 

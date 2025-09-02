@@ -50,6 +50,7 @@ class SimulationConfig:
     bus_idle_timeout: float = 120.0  # Time to wait before considering event bus as idle
     export_training_data: bool = False  # Whether to export training data
     export_event_data: bool = False
+    export_event_flow: bool = False  # Whether to export event flow data
     additional_config: Dict[str, Any] = field(default_factory=dict)
     collection_interval: int = 30
 
@@ -70,6 +71,7 @@ class BasicSimEnv:
         agents: Optional[Dict[str, GeneralAgent]] = None,
         env_path: Optional[str] = None,
         trail_id: Optional[str] = None,
+        output_dir: Optional[str] = None,
     ) -> None:
         """
         Initialize the simulation environment.
@@ -94,9 +96,10 @@ class BasicSimEnv:
                 interval=config.get('interval', 60.0),
                 bus_idle_timeout=config.get('bus_idle_timeout', 30.0),
                 export_training_data=config.get('export_training_data', False),
-                export_event_data=config.get('export_event_data',False),
+                export_event_data=config.get('export_event_data', False),
+                export_event_flow=config.get('export_event_flow', False),
                 additional_config=config.get('additional_config', {}),
-                collection_interval=config.get('collection_interval',30)
+                collection_interval=config.get('collection_interval', 30),
             )
         elif config is None:
             self.config = SimulationConfig()
@@ -116,6 +119,9 @@ class BasicSimEnv:
         self.max_steps = self.config.max_steps
         self.agents = agents
         self.env_path = env_path
+        # Store output directory for simulation results
+        # If output_dir is not provided, it will be created by the caller
+        self.output_dir = output_dir
         self.tot_time = 0.0
         self.current_step = 1 # Unified counter for rounds/triggers
 
@@ -137,6 +143,8 @@ class BasicSimEnv:
         self._pause_signal = asyncio.Event()  # Pause signal: set = paused, clear = running
         # Initially not paused, so clear the signal
         self._termination_signal = asyncio.Event()  # Termination signal
+        # Signal when stop_simulation fully completed
+        self.stopped_event = asyncio.Event()
 
         # Data storage managers
         self.trail_id = trail_id
@@ -176,7 +184,7 @@ class BasicSimEnv:
         # self.scheduler = Scheduler(self.event_bus) if self.mode == SimulationMode.TIMED else None
 
         # Create metrics directory path (directory creation moved to async methods)
-        self.metrics_save_dir = os.path.join(env_path, 'metrics_plots') if env_path else None
+        self.metrics_save_dir = self.get_metrics_directory()
 
         # Run async initialization steps
         asyncio.create_task(self.initialize())
@@ -245,7 +253,9 @@ class BasicSimEnv:
                 tasks.append(self._metrics_collection_task)
             else:
                 self._metrics_collection_task = None
-                logger.warning("Metrics collection disabled: env_path not provided.")
+                logger.warning(
+                    "Metrics collection disabled: metrics directory not available."
+                )
 
             if self.mode == SimulationMode.TIMED:
                 # Initialize timed mode scheduling
@@ -449,7 +459,7 @@ class BasicSimEnv:
 
             # Export training data if enabled in config
             if self.config.export_training_data:
-                dataset_dir = os.path.join(self.env_path,"datasets")
+                dataset_dir = self.get_datasets_directory()
 
                 # Create dataset directory if it doesn't exist
                 await aiofiles.os.makedirs(dataset_dir, exist_ok=True)
@@ -489,10 +499,11 @@ class BasicSimEnv:
                     logger.error(f"Error exporting training data: {e}")
 
             # Export metrics as images if save directory is available
-            if self.metrics_save_dir:
+            monitor_dir = self.get_metrics_directory()
+            if monitor_dir:
                 try:
                     # Create step-specific directory asynchronously
-                    step_dir = os.path.join(self.metrics_save_dir, f'step_{self.current_step}')
+                    step_dir = os.path.join(monitor_dir, f'step_{self.current_step}')
                     await aiofiles.os.makedirs(step_dir, exist_ok=True)
 
                     profiles_dir=os.path.join(step_dir,"profiles")
@@ -531,7 +542,6 @@ class BasicSimEnv:
 
                 except Exception as e:
                     logger.error(f"Error saving metrics plots: {e}")
-                    logger.error
 
         except Exception as e:
             logger.error(f"Error saving step {step_num} data: {e}")
@@ -980,11 +990,19 @@ class BasicSimEnv:
 
             if monitor_manager:
                 logger.info(f"Exporting metrics for step {self.current_step}")
-                step_dir = os.path.join(self.metrics_save_dir, f'step_{self.current_step}')
-                await aiofiles.os.makedirs(step_dir, exist_ok=True)
-                # 使用新的统一导出接口
-                monitor_manager.export_metrics_as_images(step_dir, self.current_step)
-                logger.info(f"Metrics plots saved to {step_dir}")
+                monitor_dir = self.get_metrics_directory()
+                if monitor_dir:
+                    step_dir = os.path.join(monitor_dir, f'step_{self.current_step}')
+                    await aiofiles.os.makedirs(step_dir, exist_ok=True)
+                    # 使用新的统一导出接口
+                    monitor_manager.export_metrics_as_images(
+                        step_dir, self.current_step
+                    )
+                    logger.info(f"Metrics plots saved to {step_dir}")
+                else:
+                    logger.warning(
+                        "Monitor directory not available - skipping metrics export"
+                    )
             else:
                 logger.warning("No monitor manager found in registry for metrics")
         except ImportError:
@@ -1014,6 +1032,73 @@ class BasicSimEnv:
             int: Environment ID (default implementation returns 0).
         """
         return "ENV"
+
+    def get_metrics_directory(self) -> Optional[str]:
+        """
+        Get the directory path for metrics and monitor output.
+
+        Returns:
+            Optional[str]: Path to metrics directory, or None if output_dir is not set
+        """
+        if not self.output_dir:
+            return None
+
+        # Check for custom metrics or monitor directory in additional_config
+        # Support both metrics_output_dir and monitor_output_dir for backward compatibility
+        custom_dir = self.config.additional_config.get('metrics_output_dir')
+        if custom_dir:
+            # If it's an absolute path, use it directly
+            if os.path.isabs(custom_dir):
+                return custom_dir
+            # If it's a relative path, make it relative to output_dir
+            return os.path.join(self.output_dir, custom_dir)
+
+        # Default to metrics_plots subdirectory in output_dir
+        return os.path.join(self.output_dir, 'metrics_plots')
+
+    def get_datasets_directory(self) -> Optional[str]:
+        """
+        Get the directory path for training data export.
+
+        Returns:
+            Optional[str]: Path to datasets directory, or None if output_dir is not set
+        """
+        if not self.output_dir:
+            return None
+
+        # Check for custom datasets directory in additional_config
+        custom_dir = self.config.additional_config.get('datasets_output_dir')
+        if custom_dir:
+            # If it's an absolute path, use it directly
+            if os.path.isabs(custom_dir):
+                return custom_dir
+            # If it's a relative path, make it relative to output_dir
+            return os.path.join(self.output_dir, custom_dir)
+
+        # Default to datasets subdirectory in output_dir
+        return os.path.join(self.output_dir, 'datasets')
+
+    def get_events_directory(self) -> Optional[str]:
+        """
+        Get the directory path for event data export.
+
+        Returns:
+            Optional[str]: Path to events directory, or None if output_dir is not set
+        """
+        if not self.output_dir:
+            return None
+
+        # Check for custom events directory in additional_config
+        custom_dir = self.config.additional_config.get('events_output_dir')
+        if custom_dir:
+            # If it's an absolute path, use it directly
+            if os.path.isabs(custom_dir):
+                return custom_dir
+            # If it's a relative path, make it relative to output_dir
+            return os.path.join(self.output_dir, custom_dir)
+
+        # Default to events subdirectory in output_dir
+        return os.path.join(self.output_dir, 'events')
 
     async def _schedule_start_events_timed(self) -> None:
         """Schedule start events for each target in timed mode."""
@@ -1049,6 +1134,7 @@ class BasicSimEnv:
 
     async def start(self, **kwargs: Any) -> None:
         """Trigger start event to begin or continue the workflow."""
+
         if self.mode == SimulationMode.ROUND:
             if self.current_step > self.max_steps:
                 logger.info("Maximum steps (rounds) reached. No more steps will be started.")
@@ -1167,23 +1253,7 @@ class BasicSimEnv:
                                      if count >= self.current_step)
             })
         else: # TIMED mode
-            stats.update({
-                'completion_distribution': {}
-            })
-            # total_triggers for TIMED mode is self.current_step -1 if it increments after processing
-            # Or it's self.current_step if it represents the *next* trigger to be scheduled/processed.
-            # Let's assume self.current_step correctly represents the number of triggers processed or the current trigger index.
-            # The definition of self.current_step for TIMED mode needs to be consistent with its use in scheduler and completion.
-            # If scheduler runs `max_steps` times, and `current_step` increments after each EndEvent in timed mode,
-            # then `total_triggers` would be `self.current_step -1` at the end, or use a separate counter for processed triggers.
-
-            # For now, let's keep total_triggers as self.current_step and refine if needed.
-            # The original logic was `self.trigger_count` which was incremented in `terminate`.
-            # If `self.current_step` in TIMED mode behaves like `self.trigger_count`, this is okay.
-            # It seems `self.current_step` is incremented in `terminate` for TIMED mode,
-            # so `stats['total_triggers']` should likely be `self.current_step -1` if `current_step` is the *next* step index.
-            # Or, if `current_step` is the count of *completed* triggers, it's fine.
-            # Let's assume it's the count of completed triggers.
+            stats.update({'completion_distribution': {}})
 
             trigger_counts_per_agent = [len(triggers) for triggers in self.agent_triggers.values()]
 
@@ -1232,6 +1302,16 @@ class BasicSimEnv:
         # Set state to terminated
         await self.set_simulation_state(SimulationState.TERMINATED, reason="user_requested")
 
+        # Stop external MonitorManager tasks early to avoid post-termination RPCs
+        try:
+            registry = get_component_registry()
+            monitor_manager = registry.get_instance("monitor")
+            if monitor_manager and hasattr(monitor_manager, 'stop_all_metrics'):
+                await monitor_manager.stop_all_metrics()
+                logger.info("Stopped MonitorManager metric tasks")
+        except Exception as e:
+            logger.warning(f"Failed to stop MonitorManager tasks: {e}")
+
         # Cancel the metrics collection task if it exists
         if hasattr(self, '_metrics_collection_task') and self._metrics_collection_task is not None:
             if not self._metrics_collection_task.done():
@@ -1254,22 +1334,22 @@ class BasicSimEnv:
 
         # Create a global termination event using EndEvent class
         from onesim.events import EndEvent
+        # 保持一致逻辑：先向所有Agent广播EndEvent（包括分布式场景）
         termination_event = EndEvent(
-            from_agent_id="ENV",
-            to_agent_id="all",  # Special marker for all agents
-            reason="simulation_completed"
+            from_agent_id="ENV", to_agent_id="all", reason="simulation_completed"
         )
 
-        # Export event flow data if specified in additional_config
-        if hasattr(self, 'config') and hasattr(self.config, 'additional_config'):
-            if self.config.additional_config.get('export_event_flow', False):
-                output_file = self.config.additional_config.get('event_flow_output_file')
-                logger.info("Exporting event flow visualization data...")
-                try:
-                    flow_data = await self.event_bus.export_event_flow_data(output_file)
-                    logger.info(f"Event flow data exported: {len(flow_data['flows'])} flows")
-                except Exception as e:
-                    logger.error(f"Error exporting event flow data: {e}")
+        # Export event flow data if enabled in config
+        if hasattr(self, 'config') and self.config.export_event_flow:
+            output_file = self.config.additional_config.get('event_flow_output_file')
+            logger.info("Exporting event flow visualization data...")
+            try:
+                flow_data = await self.event_bus.export_event_flow_data(output_file)
+                logger.info(
+                    f"Event flow data exported: {len(flow_data['flows'])} flows"
+                )
+            except Exception as e:
+                logger.error(f"Error exporting event flow data: {e}")
 
         # Send termination event to event bus
         await self.event_bus.dispatch_event(termination_event)
@@ -1295,7 +1375,7 @@ class BasicSimEnv:
         if self.config.export_training_data:
             # This involves file I/O, should be async
 
-            dataset_dir = os.path.join(self.env_path,"datasets")
+            dataset_dir = self.get_datasets_directory()
 
             # Create dataset directory if it doesn't exist (async)
             await aiofiles.os.makedirs(dataset_dir, exist_ok=True)
@@ -1329,8 +1409,8 @@ class BasicSimEnv:
         if self.config.export_event_data and hasattr(self, '_pending_events') and self._pending_events:
             # This involves file I/O, should be async
             env_name = os.path.basename(self.env_path) if self.env_path else "unknown_env"
-            dataset_dir = os.path.join(self.env_path, "events") if self.env_path else "events"
-            os.makedirs(dataset_dir, exist_ok=True)
+            dataset_dir = self.get_events_directory() or "events"
+            await aiofiles.os.makedirs(dataset_dir, exist_ok=True)
 
             # Use trail_id or timestamp for the filename
             filename = f"{self.trail_id or f'simulation_{int(time.time())}'}.json"
@@ -1341,6 +1421,10 @@ class BasicSimEnv:
 
         # Ensure worker nodes can see the termination signal
         await asyncio.sleep(0.5)  # Allow some time for the termination signal to propagate to all nodes
+
+        # Mark environment fully stopped
+        if not self.stopped_event.is_set():
+            self.stopped_event.set()
 
     async def pause_simulation(self):
         """
@@ -1842,9 +1926,8 @@ class BasicSimEnv:
 
             # Acquire lock before updating data
             async with lock:
-                # Update the requested data (await the async method)
-                await self.update_data(event.key, event.value)
-                success = True
+                # Update the requested data
+                success = await self.update_data(event.key, event.value)
 
                 # Create and send response event
                 response_event = DataUpdateResponseEvent(

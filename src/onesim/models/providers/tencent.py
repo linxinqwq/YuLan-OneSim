@@ -79,6 +79,8 @@ class TencentChatAdapter(ModelAdapterBase):
         try:
             resp = self.client.chat.completions.create(**call_kwargs)
             content = resp.choices[0].message.content
+            if "usage" in resp.model_dump():
+                self._track_token_usage(resp.model_dump()["usage"])
             return ModelResponse(
                 text=content,
                 raw=resp.model_dump(),
@@ -117,6 +119,8 @@ class TencentChatAdapter(ModelAdapterBase):
                     lambda: self.client.chat.completions.create(**call_kwargs)
                 )
             content = resp.choices[0].message.content
+            if "usage" in resp.model_dump():
+                self._track_token_usage(resp.model_dump()["usage"])
             return ModelResponse(
                 text=content,
                 raw=resp.model_dump(),
@@ -212,6 +216,8 @@ class TencentEmbeddingAdapter(ModelAdapterBase):
                 **call_kwargs
             )
             data = resp.model_dump()
+            if "usage" in data:
+                self._track_token_usage(data["usage"])
             embeddings = [item["embedding"] for item in data.get("data", [])]
             return ModelResponse(embedding=embeddings, raw=data)
         except Exception as e:
@@ -244,6 +250,8 @@ class TencentEmbeddingAdapter(ModelAdapterBase):
                     )
                 )
                 data = resp.model_dump()
+            if "usage" in data:
+                self._track_token_usage(data["usage"])
             embeddings = [item["embedding"] for item in data.get("data", [])]
             return ModelResponse(embedding=embeddings, raw=data)
         except Exception as e:

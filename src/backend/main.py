@@ -16,7 +16,8 @@ from backend.routers import (
     simulation,
     agent,
     feedback,
-    monitor
+    monitor,
+    user,
 )
 
 # Import from onesim
@@ -47,13 +48,14 @@ app.include_router(simulation.router)
 app.include_router(agent.router)
 app.include_router(feedback.router)
 app.include_router(monitor.router)
+app.include_router(user.router)
 
 # Root endpoint
 @app.get("/")
 def read_root():
     return {"message": "Agent Simulation API"}
 
-# Global variables will be imported from appropriate modules 
+# Global variables will be imported from appropriate modules
 
 # 在这里定义需要在应用启动时执行的代码
 @app.on_event("startup")
