@@ -6,8 +6,8 @@
             "max_steps": 3,
             "interval": 60.0,
             "bus_idle_timeout": 30.0,
-            "export_training_data": false,
-            "export_event_data": false,
+            "export_training_data": true,
+            "export_event_data": true,
             "collection_interval": 30,
             "additional_config": {
                 "export_event_flow": false,

@@ -264,7 +264,6 @@ async def initialize_simulation(env_name: str, model_name: str = None) -> dict:
             agents,
             env_path,
             trail_id,  # Pass trail_id to environment
-            None,  # intervention_engine
             output_dir,  # Pass the timestamped output directory
         )
         end_events = work_graph.get_end_events()
