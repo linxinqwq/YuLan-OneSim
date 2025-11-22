@@ -312,7 +312,11 @@ class BasicSimEnv:
                                     # Extract essential info for registration
                                     agent_type = getattr(agent, 'agent_type', 'general')
                                     name = getattr(agent, 'name', agent_id)
-                                    initial_profile = agent.get_profile() if hasattr(agent, 'get_profile') else {}
+                                    initial_profile = (
+                                        agent.get_profile(include_private=True)
+                                        if hasattr(agent, 'get_profile')
+                                        else {}
+                                    )
                                     system_prompt = getattr(agent, 'system_prompt', None)
                                     model_config = getattr(agent, 'model_config', None)
                                     memory_config = getattr(agent, 'memory_config', None)
@@ -342,7 +346,11 @@ class BasicSimEnv:
                                 continue
 
                             # Extract agent data from its current state
-                            profile = agent.get_profile() if hasattr(agent, 'get_profile') else None
+                            profile = (
+                                agent.get_profile(include_private=True)
+                                if hasattr(agent, 'get_profile')
+                                else None
+                            )
                             memory = await agent.get_memory() if hasattr(agent, 'get_memory') else None
                             relationships = agent.get_all_relationships() if hasattr(agent, 'get_relationships') else None
 
@@ -396,7 +404,11 @@ class BasicSimEnv:
                             # registered in _save_initial_state or elsewhere before steps begin
 
                             # Extract agent data asynchronously if methods are async
-                            profile = agent.get_profile() if hasattr(agent, 'get_profile') else None
+                            profile = (
+                                agent.get_profile(include_private=True)
+                                if hasattr(agent, 'get_profile')
+                                else None
+                            )
                             memory = await agent.get_memory() if hasattr(agent, 'get_memory') else None
                             relationships = agent.get_all_relationships() if hasattr(agent, 'get_relationships') else None
 
@@ -518,7 +530,11 @@ class BasicSimEnv:
                             agents_to_profile.extend(agent_type_dict.values())
 
                     for agent in agents_to_profile:
-                        profile = agent.get_profile() if hasattr(agent, 'get_profile') else None
+                        profile = (
+                            agent.get_profile(include_private=True)
+                            if hasattr(agent, 'get_profile')
+                            else None
+                        )
                         if profile:
                             profiles.append(profile)
 
