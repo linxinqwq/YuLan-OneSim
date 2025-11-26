@@ -30,77 +30,69 @@
   },
   "metrics": [
     {
-      "id": "AverageProductivity",
-      "name": "AverageProductivity",
-      "description": "Average productivity of worker agents over time",
+      "id": "average_worker_productivity",
+      "name": "average_worker_productivity",
+      "description": "Measures the average productivity level of all Worker Agents.",
       "visualization_type": "line",
-      "update_interval": 5,
+      "update_frequency": 5,
       "variables": [
         {
-          "name": "productivity",
+          "name": "productivity_level",
           "source_type": "agent",
           "agent_type": "WorkerAgent",
-          "path": "productivity",
+          "path": "profile.productivity_level",
           "required": true,
           "is_list": true
         }
       ],
-      "calculation_logic": "Calculate the average productivity of worker agents. If the productivity list is empty or contains None values, return 0. If the list contains non-numeric values, skip those values in the calculation.",
-      "function_name": "AverageProductivity"
+      "calculation_logic": "Calculate the average of the 'productivity_level' values from all Worker Agents. Handle edge cases by skipping None values and empty lists. If all values are None or the list is empty, return a default average of 0.",
+      "function_name": "average_worker_productivity"
     },
     {
-      "id": "AttentionImpact",
-      "name": "AttentionImpact",
-      "description": "Impact of leader attention on worker productivity",
+      "id": "leadership_attention_impact",
+      "name": "leadership_attention_impact",
+      "description": "Assesses the correlation between leadership attention levels and worker productivity.",
       "visualization_type": "bar",
-      "update_interval": 5,
+      "update_frequency": 5,
       "variables": [
         {
-          "name": "leaderAttention",
+          "name": "leadership_attention_level",
           "source_type": "agent",
-          "agent_type": "LeaderAgent",
-          "path": "attention",
+          "agent_type": "WorkerAgent",
+          "path": "profile.leadership_attention_level",
           "required": true,
           "is_list": true
         },
         {
-          "name": "workerProductivity",
+          "name": "productivity_level",
           "source_type": "agent",
           "agent_type": "WorkerAgent",
-          "path": "productivity",
+          "path": "profile.productivity_level",
           "required": true,
           "is_list": true
         }
       ],
-      "calculation_logic": "Calculate the average productivity of worker agents for each level of leader attention. If the leaderAttention list or workerProductivity list is empty or contains None values, return 0 for that attention level. If the lists contain non-numeric values, skip those values in the calculation.",
-      "function_name": "AttentionImpact"
+      "calculation_logic": "Compute the average productivity for different ranges of leadership attention levels. Group 'leadership_attention_level' values into categories (e.g., low, medium, high) and calculate average 'productivity_level' for each category. Handle edge cases by ignoring None values and ensuring lists are of equal length. If data is insufficient, return an empty result set.",
+      "function_name": "leadership_attention_impact"
     },
     {
-      "id": "TeamInteractionEffectiveness",
-      "name": "TeamInteractionEffectiveness",
-      "description": "Effectiveness of team interactions on overall productivity",
+      "id": "emotional_state_distribution",
+      "name": "emotional_state_distribution",
+      "description": "Shows the distribution of emotional states among Worker Agents.",
       "visualization_type": "pie",
-      "update_interval": 5,
+      "update_frequency": 5,
       "variables": [
         {
-          "name": "teamInteraction",
-          "source_type": "agent",
-          "agent_type": "TeamAgent",
-          "path": "interaction",
-          "required": true,
-          "is_list": true
-        },
-        {
-          "name": "overallProductivity",
+          "name": "emotional_state",
           "source_type": "agent",
           "agent_type": "WorkerAgent",
-          "path": "productivity",
+          "path": "profile.emotional_state",
           "required": true,
           "is_list": true
         }
       ],
-      "calculation_logic": "Calculate the proportion of overall productivity attributed to different levels of team interaction. If the teamInteraction list or overallProductivity list is empty or contains None values, return 0 for that interaction level. If the lists contain non-numeric values, skip those values in the calculation.",
-      "function_name": "TeamInteractionEffectiveness"
+      "calculation_logic": "Count occurrences of each unique 'emotional_state' value among Worker Agents. Handle edge cases by ignoring None values and empty lists. If all values are None or the list is empty, return an empty distribution.",
+      "function_name": "emotional_state_distribution"
     }
   ]
 }
