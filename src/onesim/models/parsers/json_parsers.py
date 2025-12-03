@@ -20,7 +20,7 @@ class JsonBlockParser(ParserBase):
     This parser extracts JSON objects from markdown code blocks in
     model responses and parses them into Python objects.
     """
-    
+
     def __init__(
         self,
         tag_start: str = "```json",
@@ -37,7 +37,7 @@ class JsonBlockParser(ParserBase):
         """
         self.tag_start = tag_start
         self.tag_end = tag_end
-        
+
         if content_hint is not None:
             if isinstance(content_hint, str):
                 self.content_hint = content_hint
@@ -49,7 +49,7 @@ class JsonBlockParser(ParserBase):
                 )
         else:
             self.content_hint = "```json\n{your_json_object}\n```"
-            
+
     def parse(self, response: ModelResponse) -> ModelResponse:
         """
         Extract and parse JSON from the response.
@@ -65,26 +65,42 @@ class JsonBlockParser(ParserBase):
         """
         # Get the text content
         text = response.text
-        
+
         if not text:
             raise ValueError("Response text is empty")
-        
-        # Find the JSON block
-        start_idx = text.find(self.tag_start)
-        
+
+        # Try to find the JSON block (case-insensitive for language tag)
+        lower_text = text.lower()
+        start_idx = lower_text.find(self.tag_start.lower())
+
         if start_idx == -1:
-            raise ValueError(f"Start tag '{self.tag_start}' not found in response")
-        
+            # Fallback: try to parse the whole text as JSON if no code block tag is found
+            try:
+                parsed_json = json.loads(text.strip())
+                response.parsed = parsed_json
+                return response
+            except json.JSONDecodeError:
+                raise ValueError(
+                    f"Start tag '{self.tag_start}' not found and response is not valid raw JSON"
+                )
+
         # Find the end tag after the start tag
         content_start = start_idx + len(self.tag_start)
         end_idx = text.find(self.tag_end, content_start)
-        
+
+        # If end tag is missing, try parsing till the end of text
         if end_idx == -1:
-            raise ValueError(f"End tag '{self.tag_end}' not found in response")
-        
+            json_content = text[content_start:].strip()
+            try:
+                parsed_json = json.loads(json_content)
+                response.parsed = parsed_json
+                return response
+            except json.JSONDecodeError:
+                raise ValueError(f"End tag '{self.tag_end}' not found in response")
+
         # Extract the JSON content
         json_content = text[content_start:end_idx].strip()
-        
+
         # Parse the JSON
         try:
             parsed_json = json.loads(json_content)
@@ -92,7 +108,7 @@ class JsonBlockParser(ParserBase):
             return response
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse JSON: {e}")
-    
+
     @property
     def format_instruction(self) -> str:
         """
@@ -103,7 +119,8 @@ class JsonBlockParser(ParserBase):
         """
         return (
             f"Respond with a JSON object in a markdown code block as follows:\n"
-            f"{self.tag_start}\n{self.content_hint}\n{self.tag_end}"
+            f"{self.tag_start}\n{self.content_hint}\n{self.tag_end}\n\n"
+            f"Alternatively, you may respond with raw JSON (without a code block)."
         )
 
 
