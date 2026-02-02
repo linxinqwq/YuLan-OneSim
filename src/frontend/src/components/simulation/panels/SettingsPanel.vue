@@ -388,11 +388,79 @@ const getOptions = () => {
 			formData.agent.profile = res.data.agent.profile;
 			chat.value = res.data.model.chat;
 			embedding.value = res.data.model.embedding;
-			
-			formData.model.chat = chat.value[0]
-			formData.model.embedding = embedding.value[0]
-			formData.agent.memory = memory.value[0]
-			formData.agent.planning = planning.value[0]
+
+			// 只有在模拟进行中时才恢复已保存的配置，否则使用默认值
+			if (gameStore.isSettingComplete) {
+				// 模拟进行中，尝试获取已保存的配置
+				axios.get(`/api/config/get?env_name=${localStorage.getItem('scenarioName')}`).then((configRes) => {
+					const savedConfig = configRes.data;
+
+					// 使用已保存的配置值，如果没有则使用默认值
+					if (savedConfig?.model?.chat && chat.value.includes(savedConfig.model.chat)) {
+						formData.model.chat = savedConfig.model.chat;
+					} else {
+						formData.model.chat = chat.value[0];
+					}
+
+					if (savedConfig?.model?.embedding && embedding.value.includes(savedConfig.model.embedding)) {
+						formData.model.embedding = savedConfig.model.embedding;
+					} else {
+						formData.model.embedding = embedding.value[0];
+					}
+
+					// 处理 memory 策略
+					const savedMemory = savedConfig?.agent?.memory?.strategy || savedConfig?.agent?.memory;
+					if (savedMemory && memory.value.includes(savedMemory)) {
+						formData.agent.memory = savedMemory;
+					} else if (savedMemory === null) {
+						formData.agent.memory = "None";
+					} else {
+						formData.agent.memory = memory.value[0];
+					}
+
+					// 处理 planning 策略
+					const savedPlanning = savedConfig?.agent?.planning;
+					if (savedPlanning && planning.value.includes(savedPlanning)) {
+						formData.agent.planning = savedPlanning;
+					} else if (savedPlanning === null) {
+						formData.agent.planning = "None";
+					} else {
+						formData.agent.planning = planning.value[0];
+					}
+
+					// 处理 max_steps
+					if (savedConfig?.simulator?.environment?.max_steps) {
+						formData.environment.max_steps = savedConfig.simulator.environment.max_steps;
+					}
+
+					// 处理 mode
+					if (savedConfig?.simulator?.environment?.mode && formData.environment.modes.includes(savedConfig.simulator.environment.mode)) {
+						formData.environment.mode = savedConfig.simulator.environment.mode;
+					}
+
+					// 处理 agent profile counts
+					if (savedConfig?.agent?.profile) {
+						for (const [agentType, profileData] of Object.entries(savedConfig.agent.profile)) {
+							if (formData.agent.profile[agentType] && profileData.count !== undefined) {
+								formData.agent.profile[agentType].count = profileData.count;
+							}
+						}
+					}
+				}).catch((err) => {
+					// 如果获取已保存配置失败，使用默认值
+					console.log('No saved config found, using defaults');
+					formData.model.chat = chat.value[0];
+					formData.model.embedding = embedding.value[0];
+					formData.agent.memory = memory.value[0];
+					formData.agent.planning = planning.value[0];
+				});
+			} else {
+				// 新模拟，使用默认值
+				formData.model.chat = chat.value[0];
+				formData.model.embedding = embedding.value[0];
+				formData.agent.memory = memory.value[0];
+				formData.agent.planning = planning.value[0];
+			}
 		});
 	}
 };
@@ -403,9 +471,9 @@ const refreshOptions = () => {
 	getOptions();
 };
 
-// onMounted(() => {
-// 	console.log('agentsData',agentsData.agents);
-// });
+onMounted(() => {
+	getOptions();
+});
 
 // 向父组件暴露refreshOptions方法和isFormSubmitted状态
 defineExpose({
