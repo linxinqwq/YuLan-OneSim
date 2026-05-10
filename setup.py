@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 # Core dependencies
 required_packages = [
-    "aiofiles>=24.1.0",
-    "asyncpg>=0.30.0",
+    "aiofiles>=23.2.1",
+    "asyncpg>=0.28.0",
     "dataclasses_json>=0.6.7",
     "fastapi>=0.115.12",
     "grpcio>=1.70.0",
@@ -54,7 +54,7 @@ setup(
     include_package_data=True,
     install_requires=required_packages,
     extras_require={'tune': tune_extras},
-    python_requires='>=3.10,<3.11',
+    python_requires='>=3.10',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
