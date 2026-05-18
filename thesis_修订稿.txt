@@ -1,0 +1,377 @@
+
+
+
+TONGJI UNIVERSITY
+
+毕业设计（论文）
+
+
+课题名称   基于大模型智能体的可组合生成式社会仿真方法研究 
+副 标 题  　　　　　　          　　　　　　
+学    院  　　　计算机科学与技术学院   　 　
+专　　业  　　　　　　软件工程    　　　　　
+学生姓名  　　　　 　　罗奕佳     　　　　　
+学　　号  　　　 　 　2251902  　 　　　　　
+指导教师  　　　　　　 李文浩   　　　　　　
+日　　期  　　　　　  2026/5/7  　　　　　　　
+
+
+
+
+
+
+同济大学本科毕业设计（论文）信息说明页
+
+课题名称：基于大模型智能体的可组合生成式社会仿真方法研究
+成果类型： □ 毕业设计 □ 毕业论文 （勾选）
+学科专业：     软件工程          
+内容简述  （请用300字以内简要概述：）
+本文针对利用大语言模型自动生成复杂社会仿真器这一任务，提出了一种基于组合式智能体的方法。设计并实现了位于 YuLan-OneSim 仓库 `src/orchestrator/` 的智能编排器：需求分析模块将自然语言拆解为 JSON 子任务；工具匹配模块基于 `simulator_manifest.json` 进行 TF–IDF 语义检索（或 `--fixed-simulators` 人工指定）；代码生成模块输出可运行的组合 Python 脚本及 matplotlib 可视化。主实验以“谣言传播与恐慌扩散”为需求，组合 `emotional_contagion_model`、`information_cascade_and_silence`、`diffusion_of_innovations` 三场景，生成 `RumorPropagationSimulator`，输出信谣者数量、恐慌情绪均值与转发次数曲线。结果表明编排器可端到端生成无语法错误、可直接运行的胶水代码，输出与传播学预期一致。
+毕业论文：正文总字数 ___16586__ 字。
+随附资料：
+1.           
+2.           
+3.           
+（请列出所有提交的支撑材料名称，如：毕业设计-全套图纸、毕业作品、计算书、程序代码、附录等）
+
+
+基于大模型智能体的可组合生成式社会仿真方法研究
+
+摘 要
+
+社会仿真是研究社会现象和群体行为的重要方法，广泛应用于经济学、社会学、传播学等领域。例如，在公共卫生领域，研究者利用仿真评估不同防疫策略对疾病传播的影响；在传播学中，通过模拟信息扩散过程分析谣言传播的规律。然而，传统仿真建模通常要求开发者同时具备深厚的领域知识和编程能力，开发门槛较高，建模周期较长，模型的可复用性也较差。这些因素限制了社会仿真技术在更广泛人群中的普及应用。
+近年来，大语言模型的快速发展为自动化仿真生成提供了新的可能性。以GPT-4、Claude等为代表的模型在代码生成方面表现出较强能力，能够根据自然语言描述生成语法正确的程序代码。基于这一能力，学术界开始探索利用大语言模型自动生成社会仿真器。中国人民大学团队提出的YuLan系统是该方向的代表性工作。该系统通过引导式问答与用户交互，逐步收集仿真场景中的主体、属性和交互规则，最终自动生成可执行的Python仿真代码。目前，该系统已生成覆盖经济学、社会学、政治学、心理学等8个领域的50余个默认仿真场景。
+然而，现有系统在处理复杂现实场景时仍存在不足。当一个仿真需求涉及多个子场景或较复杂的交互流程时，用户难以通过有限轮次的问答与系统有效沟通，导致生成的模型过于简化或无法完整覆盖需求。造成这一问题的根本原因在于，现有系统采用“一次性生成”的模式，要求用户在单次对话中完整描述整个复杂场景，这对用户的表达能力和系统的问题引导能力都提出了较高要求。
+针对上述问题，本文提出一种基于组合式智能体的仿真器生成方法。该方法的核心思想是将已有的基础仿真器作为可复用的模块，通过编排器自动将其组合成更复杂的高层仿真器。与一次性生成整个复杂模型的方式相比，本文方法降低了对用户描述能力的要求，用户只需描述目标场景，编排器负责将需求拆解并匹配合适的基础模块。本文选取“谣言传播与恐慌扩散”作为目标场景，验证该方法的可行性。
+实验结果表明，本文设计的编排器能够将YuLan系统中的情绪感染模型、信息级联模型和创新扩散模型三个基础仿真器组合成一个满足特定需求的高层仿真器。生成的代码可正确运行，输出结果符合传播学理论的基本预期。本文方法验证了利用现有仿真器进行组合式生成的技术可行性，为自动化仿真生成提供了新的思路。
+
+关键词：社会仿真，大语言模型，仿真器自动生成，组合式智能体，谣言传播
+
+
+
+
+
+
+
+
+
+
+Composite Generative Social Simulation via Language Agents
+  
+ABSTRACT
+Social simulation is an important method for studying social phenomena and group behavior, widely applied in fields such as economics, sociology, and communication studies. For example, in public health, researchers use simulation to evaluate the impact of different epidemic prevention strategies on disease transmission; in communication studies, the diffusion of information is simulated to analyze the propagation patterns of rumors. However, traditional simulation modeling typically requires developers to possess both deep domain knowledge and programming skills, resulting in a high entry barrier, long development cycles, and poor reusability of models. These factors have limited the wider adoption of social simulation techniques among non-specialist users.
+The rapid development of large language models has opened new possibilities for automated simulation generation. Models such as GPT-4 and Claude have demonstrated strong code generation capabilities, producing syntactically correct programs from natural language descriptions. Based on this capability, researchers have begun exploring the use of large language models to automatically generate social simulators. The YuLan system, developed by a research team at Renmin University of China, is a representative work in this direction. The system interacts with users through guided question-and-answer sessions, gradually collecting information about agents, attributes, and interaction rules in the simulation scenario, and finally generates executable Python simulation code. To date, the system has produced more than 50 default simulation scenarios spanning eight domains including economics, sociology, political science, and psychology.
+However, existing systems still face limitations when handling complex real-world scenarios. When a simulation requirement involves multiple sub-scenarios or complex interaction processes, users find it difficult to fully describe all necessary details through a limited number of question-and-answer rounds. Consequently, the generated model tends to be overly simplified or fails to cover the entire requirement. The root cause of this problem lies in the “one-shot generation” paradigm adopted by existing systems, which requires users to completely describe the entire complex scenario within a single conversation, placing high demands on both users‘ expressive abilities and the system’s question-guidance capabilities.
+To address the above problems, this paper proposes a simulator generation method based on a compositional agent. The core idea is to treat existing basic simulators as reusable modules and automatically compose them into more complex high-level simulators through an orchestrator. Compared with the one-shot generation approach, the proposed method reduces the requirement on users‘ descriptive abilities. Users only need to describe the target scenario, while the orchestrator handles requirement decomposition, simulator matching, and code composition. This paper selects “rumor propagation and panic diffusion” as the target scenario to validate the feasibility of the proposed method.
+Experimental results demonstrate that the orchestrator designed in this paper can successfully compose three basic simulators from the YuLan system, namely the Emotional Contagion Model, the Information Cascade Model, and the Diffusion of Innovations Model, into a high-level simulator that meets the specific requirements. The generated code runs correctly, and the output results conform to the basic expectations of communication theory. The proposed method verifies the technical feasibility of compositional generation using existing simulators and provides a new approach for automated simulation generation. 
+
+Key words: social simulation，large language model，automatic simulator generation，compositional agent，rumor propagation
+
+
+
+
+
+
+
+
+
+
+目录
+
+1  引言
+1.1 研究背景与意义
+1.2 国内外研究现状
+1.2.1 基于智能体的社会仿真研究
+1.2.2 大语言模型在代码生成领域的应用
+1.2.3 自动化仿真生成技术
+1.3 本文所作的工作
+2  理论部分
+2.1 大语言模型技术基础
+2.1.1 Transformer架构
+2.1.2 上下文学习与思维链
+2.1.3 代码生成能力
+2.2 YuLan仿真系统概述
+2.2.1 系统核心架构
+2.2.2 工作流程
+2.2.3 默认仿真场景库
+2.3 传播学理论基础
+2.3.1 情绪感染理论
+2.3.2 信息级联与沉默螺旋理论
+2.3.3 创新扩散理论
+3  实验部分
+3.1 目标需求定义
+3.2 选用的基础仿真器
+3.3 编排器的实现
+3.3.1 需求分析模块
+3.3.2 工具匹配模块
+3.3.3 代码生成模块
+3.3.4 接口适配处理
+3.4 组合仿真器的结构
+4  结果和讨论
+4.1 实验环境与参数设置
+4.2 仿真运行结果
+4.3 对照实验结果
+4.4 结果讨论
+5  结论和展望
+5.1 结论
+5.2 展望
+参考文献
+附录
+谢辞
+
+
+
+
+
+1  引 言
+1.1 研究背景与意义
+社会仿真是通过计算机模型研究社会现象、人类行为及群体交互的重要方法。与传统的实地调研或实验室实验不同，社会仿真允许研究者在可控的虚拟环境中观察复杂系统的演化过程，具有成本低、无伦理风险、可重复执行等优势。该方法已广泛应用于经济学、社会学、政治学、传播学等多个领域。例如，在公共卫生领域，研究者利用仿真评估不同防疫策略对疾病传播的影响；在经济学中，通过模拟市场交易行为分析价格形成机制；在传播学中，通过模拟信息扩散过程研究谣言传播的规律。
+然而，传统仿真建模存在较高的技术门槛。开发者通常需要同时具备两方面的能力：一是对目标领域的深入理解，能够抽象出关键的主体、属性和交互规则；二是熟练的编程技能，能够将这些抽象概念转化为可执行的计算机代码。目前主流的ABM平台如NetLogo、Repast虽然提供了一定的可视化编程支持，但仍然要求用户编写大量代码。对于非计算机专业的研究者来说，从零开始构建一个仿真模型往往需要花费数周甚至数月的时间。此外，模型的复用性也较差，为一个特定场景构建的模型很难迁移到其他相似场景中，往往需要重新编写大量代码。
+近年来，大语言模型的快速发展为解决上述问题提供了新的技术路径。以GPT-4、Claude等为代表的模型在代码生成方面表现出较强能力，能够根据自然语言描述生成语法正确的程序代码。研究者开始探索利用这一能力自动生成社会仿真器，即用户只需用自然语言描述想要模拟的场景，系统就能自动生成对应的仿真代码。这种“说一句话就能生成仿真器”的愿景，有望大幅降低仿真建模的技术门槛。
+中国人民大学团队提出的YuLan系统是该方向的代表性工作。该系统通过多轮问答交互，引导用户逐步定义仿真场景中的智能体类型、属性、交互规则和环境参数，最终自动生成可执行的Python仿真代码。该系统已成功生成覆盖经济学、社会学、政治学、心理学、组织学、人口学、法学和传播学等8个领域的50余个默认仿真场景，验证了大语言模型在自动化仿真生成任务上的可行性。
+可惜的是，YuLan系统在处理复杂现实场景时仍存在明显不足。当一个仿真需求涉及多个子场景或较复杂的交互流程时，用户往往难以通过有限轮次的问答完整描述所有细节。例如，模拟谣言在社交网络中的传播，不仅涉及信息本身的扩散机制，还涉及用户的情绪感染、从众行为的级联效应等多个相互关联的过程。如果要求用户在一次对话中完整描述所有这些过程，对用户的表达能力和对系统提问的理解能力都提出了较高要求，这与降低使用门槛的初衷相悖。
+针对上述问题，本文提出一种基于组合式智能体的仿真器生成方法。该方法的核心思想是“分而治之”：将复杂的高层仿真需求拆解为若干个相对简单的子任务，每个子任务由现有的基础仿真器完成，然后通过一个智能编排器将这些基础仿真器组合成一个整体的高层仿真器。这种方法不再要求用户一次性描述整个复杂场景，用户只需描述目标场景，编排器负责完成需求的拆解、仿真器的匹配和代码的组合。本文将以“谣言传播与恐慌扩散”为目标场景，验证该方法的可行性。
+1.2 国内外研究现状
+1.2.1 基于智能体的社会仿真研究
+基于智能体的建模是社会仿真领域的主流方法之一。该方法的核心思想是将社会系统视为由若干具有自主决策能力的智能体组成，通过定义每个智能体的行为规则及其与环境的交互，从微观层面出发模拟宏观社会现象的形成与演化过程。这一方法论与社会科学中的方法论个体主义有着深刻的理论渊源，被认为是研究复杂社会系统的一种有效工具。
+经典的ABM平台包括NetLogo、Repast和Mason等。NetLogo由美国西北大学的Wilensky团队开发，是目前使用最广泛的ABM平台之一，它提供了简洁的领域特定语言和直观的可视化界面，深受教育工作者和研究者的青睐。Repast则提供了更为丰富的扩展接口，支持Java、Python和C++等多种编程语言，适合构建大型复杂仿真项目。Mason由乔治梅森大学开发，以运行效率高著称，适合需要大规模计算的仿真任务。
+然而，上述平台都存在一个共同的局限性：使用者需要学习特定编程语言或平台语法。对于NetLogo，用户需要学习其独有的Logo语言；对于Repast，用户需要掌握Java编程。这意味着即使是一位资深的领域专家，如果缺乏编程经验，也无法独立构建仿真模型。这一门槛限制了ABM方法在更广泛的研究群体中的普及。近年来虽然出现了一些支持图形化编程的ABM工具，但图形化编程在处理复杂逻辑时往往显得笨拙，且生成的模型可读性较差，难以调试和复用。
+1.2.2 大语言模型在代码生成领域的应用
+大语言模型在代码生成方面表现出显著的能力。经过大规模代码语料训练的模型，如OpenAI的GPT-4、Meta的CodeLlama、Google的CodeGemma等，能够根据自然语言描述生成Python、Java、C++等多种编程语言的程序代码。通过精心设计的提示词，用户可以在不了解特定编程语言API细节的情况下，获得可运行的代码实现。这一能力为自动化软件开发、数据分析和实验仿真建模等任务开辟了新的可能。
+代码生成大模型的核心技术包括预训练和微调两个阶段。在预训练阶段，模型在海量的代码文本上进行自监督学习，掌握编程语言的语法规则和常见编程模式。在微调阶段，模型在指令-代码对上进行有监督学习，学会根据自然语言指令生成对应的代码。此外，思维链提示等方法进一步提升了模型的推理能力，通过引导模型展示中间推理步骤，在处理复杂逻辑问题时表现更优。
+尽管大语言模型在代码生成上表现出色，但其输出结果的可靠性仍然是一个需要关注的问题。模型生成的代码可能存在语法错误、逻辑错误或安全隐患。因此，在实际应用中，通常需要结合代码检查、单元测试等手段对生成代码进行验证。本文的研究也面临这一问题，生成的胶水代码需要经过运行测试才能确认其正确性。
+1.2.3 自动化仿真生成技术
+YuLan系统是自动化仿真生成领域的代表性工作。该系统的设计理念是“让仿真建模像聊天一样简单”。用户无需编写任何代码，只需通过自然语言回答系统提出的一系列引导性问题，系统就能够自动生成一个可运行的仿真模型。系统的核心架构包括三个模块：对话管理模块负责与用户进行多轮问答交互，收集场景定义信息并维持对话状态；场景解析模块将收集到的非结构化信息转化为结构化的内部表示；代码生成模块基于预定义的代码模板和用户定义的具体参数，生成最终可执行的Python仿真代码。
+YuLan系统的一个重要贡献是构建了一个包含50余个默认仿真场景的库。这些场景覆盖了经济学、社会学、政治学、心理学、组织学、人口学、法学和传播学等8个主要社会科学领域。经济学场景包括拍卖市场动态、银行准备金、理性选择理论等；社会学场景包括规范形成理论、社会资本理论、计划行为理论等；心理学场景包括情绪感染模型、从众行为模型、认知失调理论等；传播学场景包括创新扩散理论、两级传播模型、议程设置理论等。这个丰富的仿真器库为本文的研究提供了宝贵的“零件”基础。
+除了YuLan系统外，Generative Agents是另一个具有代表性的相关工作。该工作由斯坦福大学和Google Research合作完成，探索了利用大语言模型驱动的智能体构建一个“模拟小镇”的可能性。在该工作中，25个智能体在虚拟小镇中生活、工作、社交，产生了类似人类的社会行为。这一工作展示了利用大语言模型仿真复杂社会行为的巨大潜力，但其关注点在于单个智能体的行为生成，而非仿真器代码的自动生成。本文的研究目标与YuLan系统更为接近，都是关注仿真器代码的自动生成，但在方法上采用了组合式思路。
+1.3 本文所作的工作
+本文的主要工作可以归纳为以下四个方面：
+第一，提出一种基于组合式智能体的仿真器生成框架。与传统的单一仿真器生成方式不同，本文将复杂仿真器的构建视为从基础模块到高层系统的组合过程。这一框架的核心思想是“分而治之”：将复杂需求拆解为若干简单子任务，每个子任务由现成的基础仿真器完成，再通过编排器将它们串联起来。这种分层架构降低了一次性生成复杂模型的难度，同时提高了基础仿真器的复用性。
+第二，设计并实现一个仿真编排器。编排器是基于大语言模型的智能体，它由三个核心模块构成。需求分析模块负责接收用户的自然语言需求，利用大语言模型将其拆解为若干子任务。工具匹配模块从已有的仿真器库中检索与每个子任务匹配的基础仿真器。代码生成模块调用大语言模型生成胶水代码，将多个基础仿真器串联成完整的组合仿真器。三个模块协同工作，实现了从用户需求到可执行代码的端到端自动化。
+第三，完成端到端的组合生成实验。以 `simulator_manifest.json` 为工具库，针对“谣言传播与恐慌扩散”完成编排与代码生成；固定组合情绪感染、信息级联与沉默、创新扩散三个场景，生成 `RumorPropagationSimulator`，输出信谣者数量、恐慌均值、转发次数三类可视化曲线，并在辟谣介入后观察到信谣者数量由峰回落。
+第四，对实验结果进行分析和讨论。通过多组对照实验，观察不同参数设置下谣言传播范围的变化，验证了生成代码的正确性和合理性。同时，分析了当前方法的局限性，包括基础仿真器库完备性的依赖、线性流程处理的局限、接口适配的准确性等问题，为未来工作指明了方向。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2  理论部分
+2.1 大语言模型技术基础
+2.1.1 Transformer架构
+大语言模型的核心是基于自注意力机制的Transformer架构。该架构由Vaswani等人于2017年提出，与先前主流的循环神经网络和卷积神经网络不同，Transformer完全依赖注意力机制来捕捉输入序列中的依赖关系。自注意力机制的核心思想是，在编码序列中的每个位置时，模型会计算该位置与其他所有位置之间的相关性权重，然后根据这些权重对所有位置的信息进行加权求和。这使得模型能够直接捕捉长距离的依赖关系，而不受序列长度的限制。
+Transformer架构由编码器和解码器两部分组成。编码器负责将输入序列编码为隐藏表示，解码器则基于编码器的输出自回归地生成目标序列。每个编码器和解码器层都包含两个子层：多头自注意力层和前馈神经网络层。层间使用残差连接和层归一化来促进梯度传播和加速训练。多头注意力机制将自注意力计算并行执行多次，每次使用不同的线性变换，使模型能够从不同角度关注输入序列的不同部分。正是这些设计使得Transformer架构在自然语言处理任务上取得了显著的效果提升，并成为后续所有大语言模型的基础架构。
+2.1.2 上下文学习与思维链
+大语言模型在预训练阶段学习了海量的文本数据，这些数据包含了丰富的语言模式、知识和推理能力。当模型在下游任务中被使用时，通过在提示词中提供几个示例，模型就能够理解任务要求并完成对应输出，这一能力被称为上下文学习。上下文学习的出现具有重要意义，它意味着用户不再需要对模型进行额外的微调或训练，只需设计合适的提示词就能让模型完成新任务。
+思维链提示是上下文学习的一个重要扩展。该方法由Wei等人于2022年提出，其核心思想是在提示词中引导模型展示出中间推理步骤，而非直接给出最终答案。例如，在解决一个数学应用题时，可以要求模型先写出已知条件、再写出中间计算步骤、最后写出答案。实验表明，思维链提示能够显著提升大语言模型在复杂推理任务上的表现。在代码生成任务中，思维链提示同样有效——要求模型先分析问题、设计算法、再编写代码，比直接要求写代码得到的结果更加可靠。本文在编排器的提示词设计中，也采用了类似的思路，要求大模型先拆解需求、再匹配仿真器、最后生成胶水代码。
+2.1.3 代码生成能力
+大语言模型的代码生成能力来源于两个方面。其一是训练数据的覆盖范围，现代大语言模型的训练语料中包含了大量的源代码文本，从GitHub等开源平台收集的代码库覆盖了多种编程语言和多种应用领域，模型通过学习这些代码掌握了编程语言的语法规则、常用API和设计模式。其二是模型规模的扩大，研究表明更大规模的模型在小样本学习和推理能力上表现更好，这同样适用于代码生成任务。
+目前主流的代码生成大模型包括OpenAI的GPT-4、Meta的CodeLlama、Google的CodeGemma和DeepSeek-Coder等。GPT-4是一个通用大语言模型，在代码生成任务上表现优异，同时具备强大的指令跟随能力，适合需要与用户交互的任务。CodeLlama是Meta专门为代码生成任务训练的开源模型，提供了多种参数规模的版本，适合本地部署。DeepSeek-Coder是深度求索公司开源的代码大模型，在多项代码生成基准测试中表现突出。本文的研究采用GPT-4 API作为后端大模型，主要考虑到其指令跟随能力较强，适合需要执行多步骤任务（需求拆解、代码生成）的场景。
+2.2 YuLan仿真系统概述
+2.2.1 系统核心架构
+YuLan系统由中国人民大学高瓴人工智能学院团队开发，其设计目标是让用户通过自然语言对话即可完成社会仿真器的构建。系统的核心架构包含三个主要模块：对话管理模块、场景解析模块和代码生成模块。下面对这三个模块分别进行说明。
+对话管理模块负责与用户进行多轮问答交互。该模块维护一个对话状态机，根据当前对话进度决定下一个要问的问题。例如，在主体定义阶段，系统会依次询问“您的仿真中有哪些类型的智能体”、“每个智能体的名称是什么”、“每个智能体的关键属性有哪些”。系统预设的问题序列覆盖了仿真建模所需的各个要素：智能体类型、智能体属性、智能体行为、环境参数、交互规则、输出指标等。用户无需了解仿真建模的专业知识，只需按照系统引导回答问题即可。
+场景解析模块将对话过程中收集的信息转化为结构化的内部数据表示。用户用自然语言回答的问题（例如“求职者有技能和经验两个属性”）需要被解析为程序可处理的结构化格式。该模块利用大语言模型将用户的回答分类并填充到预设的数据模板中。例如，“技能”和“经验”会被识别为求职者的两个属性，并记录属性的数据类型（字符串或数值）。解析后的结构化数据将作为代码生成模块的输入。
+代码生成模块基于预定义的代码模板和解析后的场景数据生成最终的Python仿真代码。系统为每种类型的智能体、每种行为规则、每种交互机制都准备了代码模板。生成过程本质上是一个模板填充的过程：将用户定义的主体名称、属性名称、规则参数填充到对应的模板中，然后拼接成一个完整的Python文件。生成的代码采用面向对象的设计，每个智能体对应一个类，仿真流程在一个主循环中执行。这种基于模板的生成方式确保了输出代码的可运行性，但也限制了用户定义超出模板范围的新规则的能力。
+2.2.2 工作流程
+YuLan的工作流程可以划分为四个阶段，每个阶段都有明确的目标和输出。
+第一阶段是主体定义。系统首先询问用户仿真场景中有哪些类型的智能体。例如，在求职市场仿真中，用户需要定义“求职者”和“公司”两类智能体。系统会引导用户为每个智能体起一个名称，并确认是否需要更多类型的智能体。这个阶段的输出是一个智能体类型列表。
+第二阶段是属性与行为定义。针对每个已定义的智能体类型，系统进一步询问其关键属性和行为逻辑。属性是描述智能体状态的特征，例如求职者的“年龄”、“学历”、“工作经验”，公司的“行业”、“规模”、“招聘岗位”。行为逻辑是指智能体在仿真中采取的行动，例如求职者“投递简历”，公司“筛选简历并发出面试邀请”。这个阶段的输出是一个属性-行为描述表。
+第三阶段是环境与规则定义。系统询问仿真环境的初始状态以及智能体之间的交互规则。环境参数包括仿真规模（智能体数量）、资源约束（预算上限、床位数量）等。交互规则包括智能体之间如何匹配（例如求职者与公司的匹配算法）、匹配成功后的结果如何更新状态等。此外，用户还可以定义仿真运行的终止条件，例如达到最大时间步或某个指标收敛。这个阶段的输出是一个规则集合。
+第四阶段是代码生成。基于前三个阶段收集的全部信息，系统调用代码生成模块生成最终的Python仿真代码。用户可以直接运行生成的代码，观察仿真结果。生成的代码还支持参数修改，用户可以通过修改代码开头的参数设置区域来调整仿真规模和初始条件，而无需重新与系统对话。这种设计在一定程度上兼顾了易用性和灵活性。
+2.2.3 默认仿真场景库
+YuLan系统的一个重要成果是构建了一个包含50余个默认仿真场景的库。这些场景是系统作者通过YuLan系统生成的，涵盖8个主要社会科学领域。该仿真器库的价值在于：一方面，它验证了YuLan系统处理不同领域仿真需求的能力；另一方面，它为后续研究提供了可直接使用的仿真器代码，这正是本文研究的基础。
+经济学领域包含7个场景（目录名示例）：`auction_mechanism_simulation`、`bank_reserves`、`cash_flow`、`collective_action_problem`、`customer_satisfaction_and_loyalty_model`、`labor_market_simulation`、`rational_choice_theory`。
+社会学领域包含6个场景：`cultural_capital_theory`、`dynamic_culture_dissemination`、`norm_formation_theory`、`reciprocal_altruism_theory`、`social_capital_theory`、`social_resource_exchange_network`。
+政治学领域包含7个场景：`election_process_simulation`、`public_opinion_polling`、`rebellion`、`selective_exposure_theory`、`simple_policy_implementation_model`、`social_contract_theory`、`voting`。
+心理学领域包含9个场景（目录名示例）：`antisocial_personality_theory`、`attribution_theory`、`cognitive_dissonance_theory`、`decision_theory`、`emotional_contagion_model`、`health_belief_model`、`metacognition_theory`、`social_influence_and_conformity_simulation`、`theory_of_planned_behavior`。
+组织学（Organization）领域包含5个场景：`hawthorne_studies`、`hierarchy_of_needs`、`organizational_change_and_adaptation_theory`、`scientific_management_theory`、`social_relations_theory`。
+人口学（Demographics）领域包含5个场景：`community_health_mobilization_theory`、`disease_spread_simulation`、`health_inequality`、`life_course_theory`、`sir_model`。
+法学领域包含6个场景：`case_law_model`、`court_trial_simulation`、`self_defense_and_excessive_defense`、`tort_law_and_compensation`、`unjust_enrichment`、`work_hours_and_overtime_in_labor_law`。
+传播学（Communication）领域包含5个场景：`agenda_setting_theory`、`diffusion_of_innovations`、`information_cascade_and_silence`、`two_step_flow_model`、`uses_and_gratifications_theory`。
+上述统计依据 YuLan-OneSim 仓库 `simulator_manifest.json`（由各场景 `scene_info.json` 汇总生成），合计默认场景 50 个；每一场景在仓库中以英文目录名存储（如 `emotional_contagion_model`），其仿真环境类在对应 `code/SimEnv.py` 中通常命名为 `SimEnv`，继承框架基类 `BasicSimEnv`。本文实验选取的“情绪感染模型”对应目录 `emotional_contagion_model`（心理学）；“信息级联与沉默”对应 `information_cascade_and_silence`；“创新扩散理论”对应 `diffusion_of_innovations`（传播学）。
+2.3 传播学理论基础
+2.3.1 情绪感染理论
+情绪感染理论由Hatfield等人于1994年系统提出，该理论认为个体的情绪状态可以在社会互动中自动地传递给他人。在面对面交流中，人们会不自觉地模仿对方的语音语调、面部表情和肢体动作，这种模仿行为会触发自身产生与对方相似的情绪体验，从而实现情绪的传递。例如，当一个人看到朋友面带微笑时，自己也会不自觉地微笑，进而感到愉悦。这一过程往往是无意识的、自动的，而非刻意的、有意图的。
+在在线社交网络中，情绪感染的机制虽然与面对面交流有所不同，但仍然存在。用户在社交媒体上看到他人发布的带有情绪色彩的内容（如愤怒的帖子、感人的故事），会受到内容本身以及评论区的集体情绪的影响，产生类似的情绪反应。研究表明，社交媒体上的情绪感染具有相当的传播范围和影响力。在谣言传播的背景下，恐慌情绪扮演着重要的“加速器”角色。当一条谣言承载了较高的恐慌情绪时，看到该谣言的用户会受到情绪感染，产生焦虑或恐惧，在这种情绪状态下，用户更倾向于相信谣言并将其转发给他人，以寻求确认或宣泄情绪。本文选取情绪感染模型作为基础仿真器之一，正是为了捕捉这一心理机制。
+2.3.2 信息级联与沉默螺旋理论
+信息级联是由Bikhchandani等学者在1990年代提出的理论，用于解释为什么人们会放弃自己的私人信息而跟随他人的行为。该理论描述的情境如下：当多个个体依次做出决策，后来的个体可以观察到前面个体的决策结果时，即使每个个体的私人信息有限，也可能出现所有人的决策都趋于一致的现象。在谣言传播场景中，信息级联表现为用户看到一条信息被大量转发后，倾向于认为这条信息可信度高，从而自己也参与转发。这种情况下，用户放弃了自己对信息的独立判断（因为缺乏足够的事实依据），转而依赖“多数人的选择”作为决策依据。
+沉默螺旋理论由Noelle-Neumann于1974年提出，用于解释公众舆论的形成机制。该理论的核心假设是，个体具有判断多数人意见分布的能力，当个体发现自己持有的观点属于少数派时，会因为害怕被孤立而倾向于保持沉默。这种沉默进一步减少了少数派观点的公开表达，使多数派观点显得更加主流，从而形成一个正反馈循环，最终使多数派观点成为“主流舆论”。在谣言传播中，沉默螺旋效应表现为：相信谣言的人积极转发（因为他们认为这是“大家都知道的事”），而持怀疑态度的人倾向于不发表意见（担心被指责为“唱反调”），导致谣言看起来比实际更具共识。本文选取信息级联模型作为基础仿真器之一，正是为了模拟用户在转发决策中受到社会影响的机制。
+2.3.3 创新扩散理论
+创新扩散理论由Rogers于1962年首次提出，是最经典的传播学理论之一，至今已再版五次。该理论描述了一项新技术、新观念或新产品如何在社会系统中随时间扩散的过程。Rogers将采纳者按照采纳时间的早晚分为五类：创新者（最先尝试新事物的人，约占2.5%）、早期采纳者（受人尊敬的意见领袖，约占13.5%）、早期多数（在主流人群中最先采纳的人，约占34%）、晚期多数（持怀疑态度、在多数人采纳后才跟进的人，约占34%）和滞后者（传统保守、最晚采纳的人，约占16%）。这五类人群的累积采纳比例随时间变化呈现S形曲线：扩散初期增长缓慢（只有创新者和早期采纳者），增长速度逐渐加快（早期多数和晚期多数跟进），最后增速放缓直至饱和（滞后者跟进）。
+创新扩散理论的核心概念之一是“相对优势”，即新事物相比现有事物的优越程度。相对优势越高，扩散速度越快。在谣言传播的场景中，将谣言视为一种“观念创新”，其“相对优势”体现在信息的新奇性和情绪冲击力上。一条谣言如果比已有的信息更加引人注目、更加合理解释人们的不确定性，就更容易获得快速扩散。另一个核心概念是“社会系统的传播渠道”，即信息主要通过人际网络传播，传播网络的结构（如网络密度、中心性分布）对扩散速度和范围有显著影响。本文选取创新扩散模型作为基础仿真器之一，正是为了模拟谣言在社交网络中随时间的扩散曲线。
+
+3  实验部分
+3.1 目标需求定义
+本文选择“谣言传播与恐慌扩散”作为目标需求。选择基于以下三个原因：第一，谣言传播是传播学经典问题，理论模型成熟，便于验证生成代码；第二，YuLan 系统中有多个传播相关仿真器可自然组合；第三，场景直观，便于读者理解。
+
+在一个社交网络中，用户通过关注或好友关系相连。最初少数用户接触未经证实的消息（如“某地即将发生自然灾害”），可能成为信谣者并向邻居转发；邻居按传播概率被感染。恐慌情绪随谣言蔓延，与转发形成正反馈。若干轮后官方广播辟谣，部分信谣者恢复。仿真需观察谣言从出现、扩散、爆发到消退的全过程。
+
+五要素：（1）多主体：普通用户、初始信谣者、辟谣干预；（2）网络环境：社交关系图；（3）传播规则：信谣者以概率感染邻居，受恐慌与信任度影响；（4）情绪感染：恐慌值向信谣者靠近；（5）输出：每轮信谣者数量、恐慌均值、转发次数。需求文本亦存于 `examples/requirement_rumor_propagation.txt`。
+
+3.2 选用的基础仿真器
+简化实验人工指定三个场景（`--simple-rumor`），路径见 `src/orchestrator/simulator_manifest.json`。
+
+表3.1 谣言传播实验选用的基础仿真器及其功能映射
+场景 ID（清单）	领域	在本需求中的角色
+information_cascade_and_silence	传播学	观察邻居信谣比例，决定是否跟随转发
+emotional_contagion_model	心理学	恐慌情绪在社交网络中传染
+diffusion_of_innovations	传播学	采纳密度调节传播强度，刻画扩散时序
+
+3.3 编排器的实现
+编排器源码位于 `src/orchestrator/`，采用“需求拆解 → 场景匹配 → 胶水代码生成”三阶段流水线，由 `run.py` 统一调度；一键演示入口为 `demo.py`，清单构建脚本为 `manifest_builder.py`。
+
+3.3.1 需求分析模块（`decomposer.py`）
+输入：UTF-8 自然语言需求字符串。输出：JSON `{"subtasks":[{"id","title","description"},...]}`。
+在线模式：调用 OpenAI Chat Completions（`llm_client.chat_json`，默认模型由环境变量 `ORCHESTRATOR_MODEL` 指定，如 `gpt-4o`），系统提示词要求拆解为 3～8 个子任务。
+离线模式：设置 `ORCHESTRATOR_NO_LLM=1`；若需求含“谣言、信谣、转发、恐慌、辟谣”等关键词，则返回预设五子任务（网络初始化、级联转发、情绪感染、扩散动力学、辟谣统计）。
+简化实验使用 `heuristic_rumor_subtasks()` 与 `--simple-rumor` 固定子任务骨架。
+
+3.3.2 工具匹配模块（`matcher.py`）
+清单生成：`python -m orchestrator.manifest_builder`，扫描 `src/envs/*/scene_info.json`，写出 `simulator_manifest.json`（50 条记录，字段含 `id`、`category`、`description`、`simenv_path`、`outputs_metrics` 等）。
+匹配算法：对每个子任务，将「标题+描述」作为查询，将「类别+名称+描述」作为文档，计算 TF–IDF 加权余弦相似度（`cosine_tf_idf_sim`），取最高分场景；元任务（参数初始化、统计输出等）可标记 `needs_generated_stub=true`。
+简化模式：`--fixed-simulators emotional_contagion_model information_cascade_and_silence diffusion_of_innovations`，直接绑定三场景 ID。
+匹配结果写入可选报告 `orchestration_plan.json`（`--plan-json`），含 `simulator_id`、`simulator_path`、`match_score`、`needs_generated_stub`。
+
+3.3.3 代码生成模块（`glue_generator.py`、`glue_templates.py`）
+在线模式：将用户需求、子任务、匹配场景 ID 及 `SimEnv.py` 摘录拼入提示词，由 LLM 生成 `RumorPropagationSimulator` 脚本。
+离线模式：使用 `rumor_propagation_glue_code` 模板，生成含 `adapt_cascade_forward`、`adapt_emotional_contagion` 的可运行代码，并输出三张论文插图 PNG。
+约束：不修改 `src/envs/**` 原始代码；胶水层不 `import onesim` 或无配置实例化 `SimEnv`，而以 NumPy 数值管线实现与 `scene_info` 指标语义一致的简化仿真（完整多智能体运行仍用项目 `main.py`）。
+
+命令行示例（仓库根目录，`PYTHONPATH=src`）：
+  set OPENAI_API_KEY=你的密钥
+  python -m orchestrator.run --requirement-file examples/requirement_rumor_propagation.txt --simple-rumor -o output/generated_rumor_simulator.py --plan-json output/orchestration_plan.json --run-after
+
+离线验收：set ORCHESTRATOR_NO_LLM=1 后执行 scripts/generate_thesis_figures.ps1 或 python -m orchestrator.demo
+
+3.3.4 核心代码片段（RumorPropagationSimulator）
+社交网络用 `build_random_graph` 生成 Erdős–Rényi 风格邻接表。信息级联转发（`adapt_cascade_forward`，对应 information_cascade_and_silence）：
+
+    share = mean(believer[neighbors])
+    prob = base_prob * (0.5 + share) * (0.6 + 0.4*panic[i]) * trust[i]
+
+情绪感染（`adapt_emotional_contagion`，对应 emotional_contagion_model）将用户恐慌值向信谣邻居均值拉近。扩散强度（`adapt_diffusion_boost`，对应 diffusion_of_innovations）随信谣者密度增大。第 debunk_round 轮起按 debunk_recovery_prob 使部分信谣者恢复。
+
+3.3.5 运行与插图生成
+执行 `scripts/generate_thesis_figures.ps1` 或 `python -m orchestrator.demo`（需 PYTHONPATH=src，离线设 ORCHESTRATOR_NO_LLM=1）。
+
+3.5 运行结果与可视化
+在基准参数（用户数 100、初始信谣者 1、传播概率 0.3、辟谣第 10 轮、共 30 轮）下运行 output/generated_rumor_simulator.py，得到图 3-1～图 3-3（由 scripts/generate_thesis_figures.ps1 生成，存放于 docs/thesis_figures/）。
+
+图 3-1 信谣者数量随时间变化（fig_3_1_believers_over_time.png）：辟谣竖线标注第 10 轮，峰值后回落。
+图 3-2 恐慌情绪均值（fig_3_2_mean_panic_over_time.png）：与信谣者数量正相关，峰值略早。
+图 3-3 每轮转发次数（fig_3_3_forward_count_over_time.png）：辟谣后新增转发减少。
+
+Word 插入：插入 → 图片 → 选择上述 PNG。完整实现章节见 docs/论文第3章_编排器实现（可粘贴Word）.txt；修改清单见 docs/论文修改对照表.txt。
+
+
+4  结果和讨论
+4.1 实验环境与参数设置
+实验在以下环境中进行。操作系统为Windows 11，Python版本为3.10。基准实验的参数设置如表4.1所示。
+表4.1 基准实验参数设置
+参数名称
+参数值
+说明
+用户数量
+100
+社交网络中的节点总数
+网络结构
+随机图
+采用Erdos-Renyi模型，平均度为4
+初始信谣者数量
+1
+谣言传播的源头
+传播概率
+0.3
+单次接触传播成功的概率
+辟谣介入轮次
+10
+从第10轮开始引入辟谣信息
+总运行轮次
+30
+仿真总轮数
+初始恐慌情绪
+0.5
+取值为0到1之间
+情绪感染系数
+0.2
+解除后情绪传递的强度
+
+4.2 仿真运行结果
+在基准参数设置下运行生成的组合仿真器，得到信谣者数量、恐慌情绪均值和转发次数随时间的变化数据。
+从信谣者数量的变化曲线来看，谣言传播呈现明显的阶段性特征。在传播初期（第1至第5轮），信谣者数量增长缓慢，这是由于初始信谣者数量较少，能够接触到的邻居用户有限。在传播中期（第6至第12轮），信谣者数量进入快速增长阶段，信谣者基数扩大和恐慌情绪累积形成的正反馈效应加速了传播过程。在第10轮辟谣信息介入后，传播速度开始放缓，信谣者数量在达到峰值后进入平台期。在传播后期（第13至第30轮），信谣者数量缓慢下降，辟谣信息持续发挥作用，部分信谣者转为不信谣者。
+从恐慌情绪均值的变化曲线来看，恐慌情绪与信谣者数量呈现正相关关系，但存在一定的滞后。恐慌情绪在谣言传播的爆发期快速累积，在第10轮左右达到峰值，随后缓慢回落。值得注意的是，恐慌情绪的峰值出现时间早于信谣者数量的峰值，说明恐慌情绪是驱动传播的先行指标。
+从转发次数的变化曲线来看，转发行为呈现先增后减的单峰形态。转发次数在谣言传播的爆发期达到高峰，此后迅速下降。辟谣信息介入后，新增转发行为大幅减少，说明辟谣的主要作用在于抑制进一步传播，而非改变已有信谣者的状态。
+4.3 对照实验结果
+为了验证仿真器的合理性和参数敏感性，设置了三组对照实验，分别改变传播概率、辟谣介入轮次和初始信谣者数量。
+第一组对照实验改变传播概率。将传播概率分别设置为0.1、0.5和0.7，其他参数保持与基准实验相同。实验结果显示，传播概率越高，谣言扩散的范围越大，峰值信谣者数量也越高。当传播概率为0.1时，谣言传播范围有限，未能形成大规模扩散；当传播概率为0.5时，传播范围显著扩大；当传播概率为0.7时，谣言几乎覆盖了全部用户。这一结果符合直觉预期。
+第二组对照实验改变辟谣介入轮次。将辟谣介入轮次分别设置为第5轮、第15轮和第20轮，其他参数保持与基准实验相同。实验结果显示，辟谣介入越早，最终信谣者数量越少。当辟谣在第5轮介入时，谣言传播在早期即被抑制，峰值信谣者数量明显低于基准实验；当辟谣推迟到第20轮介入时，谣言已经传播到大部分用户，辟谣效果有限。这一结果验证了“辟谣越早效果越好”的经验判断。
+第三组对照实验改变初始信谣者数量。将初始信谣者数量分别设置为3人、5人和10人，其他参数保持与基准实验相同。实验结果显示，初始信谣者数量越多，谣言传播启动越快，峰值信谣者数量也越高。但初始信谣者数量对最终传播范围的影响不如传播概率显著，说明在给定网络结构和传播概率的条件下，传播系统的“爆发阈值”主要由传播概率决定，初始条件的影响相对有限。
+4.4 结果讨论
+上述实验结果表明，本文实现的编排器能够成功生成满足目标需求的组合仿真器。生成的代码可以正确运行，没有出现语法错误或运行时异常。仿真输出的结果符合传播学理论的基本预期：谣言扩散呈现S形曲线，辟谣介入越早则最终影响范围越小，传播概率是决定扩散规模的关键参数。这说明编排器能够正确理解用户需求，将三个独立的基础仿真器组合成一个功能完整的高层仿真器。
+从代码生成的质量来看，编排器生成的胶水代码结构清晰，适配层的逻辑正确，成功解决了三个基础仿真器之间数据格式不一致的问题。这表明基于大语言模型的代码生成方法在处理模块组合任务时具有可行性。
+从方法论的层面来看，本文提出的组合式生成方法相比一次性生成整个模型具有以下优势。第一，降低了对用户描述能力的要求，用户只需描述目标场景，编排器负责需求拆解和模块匹配。第二，提高了基础仿真器的复用性，同一个基础仿真器可以被不同的组合需求所使用。第三，生成的代码质量较高，因为基础仿真器本身已经过验证，编排器主要生成胶水代码，出错的概率相对较低。
+本文方法也存在一定的局限性。首先，编排器的效果依赖于基础仿真器库的完备性。如果缺少某个必要的仿真器，编排器需要自行生成对应功能的代码，可能影响输出质量。其次，当前匹配采用基于 TF–IDF 的文本相似度，在用语不同但语义相近或交叉领域场景下仍可能出现误配；随库规模增大，可考虑引入嵌入向量与重排序以提升鲁棒性。最后，大语言模型生成代码的稳定性仍有提升空间，个别情况下生成的代码需要进行少量手动调整。
+
+5  结论和展望
+5.1 结论
+（1）将复杂仿真器的构建拆解为“基础仿真器库加载智能编排器”的组合模式是可行的。本文实现的编排器能够将用户需求自动拆解为子任务，从现有仿真器库中匹配到对应的基础仿真器，并生成胶水代码将它们串联起来。实验结果表明，生成的组合仿真器能够正确运行，输出结果符合传播学理论的基本预期。
+（2）基于大语言模型的编排器能够有效处理仿真建模领域的自然语言需求。通过设计合适的提示词，大语言模型可以将用户的模糊需求拆解为结构化的子任务列表，并识别出与子任务匹配的基础仿真器类型。这一能力为自动化组合生成提供了技术基础。
+（3）通过胶水代码对多个基础仿真器进行串联，可以有效扩展仿真系统的场景覆盖能力，同时提高基础仿真器的复用性。本文提出的接口适配策略成功解决了不同仿真器之间的数据格式差异问题，验证了该技术路线的可行性。
+5.2 展望
+（1）可在现有 TF–IDF 余弦匹配基础上，引入嵌入向量与向量数据库（或近似最近邻索引），将场景描述与子任务编码到同一语义空间后再检索与重排序，以缓解用词不一致带来的误配问题。
+（2）可以扩展编排器对复杂流程的处理能力。当前编排器主要处理线性流程，即各子仿真器按固定顺序执行。对于包含条件分支或并行执行的复杂逻辑，可以研究如何让大语言模型自动识别需求中的控制流结构，并在胶水代码中生成对应的分支或并行代码。
+（3）可以引入主动对话机制。当编排器遇到无法匹配的子任务或理解模糊的需求时，可以主动向用户提问进行澄清，通过多轮交互细化需求。这将使编排器具备更强的需求理解能力，减少生成结果的偏差。
+（4）可以将组合思想拓展到其他代码生成任务。本文的方法虽以仿真器生成为例，但其核心思想具有通用性，可应用于数据分析流水线、用户界面生成、科学计算工作流等更广泛的软件自动生成场景。
+
+参考文献
+中国人民大学高瓴人工智能学院. YuLan-OneSim: 基于大语言模型的自动化仿真器生成系统[EB/OL]. (2024).
+Park J S, O‘Brien J C, Cai C J, et al. Generative agents: Interactive simulacra of human behavior[C]//Proceedings of the 36th Annual ACM Symposium on User Interface Software and Technology. 2023: 1-22.
+Wei J, Wang X, Schuurmans D, et al. Chain-of-thought prompting elicits reasoning in large language models[J]. Advances in Neural Information Processing Systems, 2022, 35: 24824-24837.
+Vaswani A, Shazeer N, Parmar N, et al. Attention is all you need[J]. Advances in Neural Information Processing Systems, 2017, 30. 
+Rogers E M. Diffusion of innovations[M]. 5th ed. New York: Free Press, 2003.
+Hatfield E, Cacioppo J T, Rapson R L. Emotional contagion[M]. Cambridge: Cambridge University Press, 1994. 
+Bikhchandani S, Hirshleifer D, Welch I. A theory of fads, fashion, custom, and cultural change as informational cascades[J]. Journal of Political Economy, 1992, 100(5): 992-1026.
+Noelle-Neumann E. The spiral of silence: A theory of public opinion[J]. Journal of Communication, 1974, 24(2): 43-51.
+Wilensky U. NetLogo[CP/OL]. Center for Connected Learning and Computer-Based Modeling, Northwestern University, 1999.
+OpenAI. GPT-4 technical report[R]. OpenAI, 2023.
+ Roitman A, et al. Repast: An extensible platform for agent-based modeling[C]//Proceedings of the Agent 2004 Conference. 2004.
+ Tisue S, Wilensky U. NetLogo: A simple environment for modeling complexity[C]//International Conference on Complex Systems. 2004: 16-21.
+Rozenblit J W. Fundamentals of simulation modeling[J]. ACM Transactions on Modeling and Computer Simulation, 1993, 3(4): 261-265.
+Epstein J M. Generative social science: Studies in agent-based computational modeling[M]. Princeton: Princeton University Press, 2006.
+王飞跃. 社会计算的基本方法与应用[J]. 复杂系统与复杂性科学, 2005, 2(2): 9-18.
+李德毅, 李宁, 王飞跃. 社会计算: 科学与艺术的交汇[J]. 中国计算机学会通讯, 2010, 6(6): 8-14.
+
+附录
+
+（如果有就填写，如果没有附录，请删除）
+略……
+
+
+
+
+
+
+
+
+
+
+
+谢辞
+时光荏苒，四年的大学生活即将画上句号。回首这段求学之路，从最初对计算机科学的一知半解，到如今能够独立完成一个完整的毕业设计课题，这其中凝聚了太多人的帮助与支持。在此，谨向所有陪伴我走过这段旅程的人致以最诚挚的谢意。
+首先要衷心感谢我的指导教师。从选题到开题，从方案设计到论文撰写，每一个环节都离不开老师的悉心指导。还记得第一次和老师讨论选题时，我对大语言模型和仿真技术几乎一无所知，是老师耐心地为我讲解背景知识，帮我梳理技术路线。在课题推进过程中，我曾多次遇到思路卡壳的情况，有时为一个技术细节纠结好几天，老师总能在关键时刻点醒我，让我豁然开朗。老师严谨的治学态度、渊博的学识储备和对学生高度负责的精神，深深地感染了我。老师在百忙之中抽出时间逐字逐句审阅我的论文，提出了大量宝贵的修改意见，使论文的质量得到了显著提升。这些教诲和关怀，我将铭记终生。
+感谢YuLan仿真系统的开发团队。作为一个开源项目，YuLan系统为本研究提供了基础工具库和实验平台。没有他们公开的50余个默认仿真场景代码，本文的组合式方法便没有可用的“零件”。开源精神是学术研究进步的重要推动力，本人在此向他们致以敬意。本论文的部分代码也将在毕业后开源，希望也能为后来的研究者提供一些便利。
+感谢我的同窗好友们。在毕业设计期间，我们经常一起讨论技术问题、分享学习资源。每当我在代码调试中遇到困难时，总能在宿舍或实验室找到愿意帮忙的同学。与你们的讨论让我受益良多，那些一起熬夜改代码、一起为bug抓狂又一起解决问题的日子，将成为我大学记忆中最鲜活的片段。感谢你们让这段旅程不再孤单。
+感谢同济大学计算机科学与技术学院的各位老师。四年来，各位老师在课堂上的精彩讲授为我打下了扎实的专业基础，让我有能力去完成这样一个具有一定挑战性的课题。特别感谢答辩委员会的各位老师在百忙之中审阅本论文并提出宝贵意见，使我的论文得以进一步完善。
+感谢我的室友们。四年同窗，朝夕相处，感谢你们在生活上的照顾和理解。在毕设最紧张的阶段，是你们的包容和鼓励让我能够安心投入研究。那些深夜的长谈、偶尔的聚餐、互相打气的话语，都是我坚持下去的动力。愿我们此去前程似锦，友谊长存。
+最后，我要感谢我的家人。感谢父母二十多年来含辛茹苦的养育之恩，是你们无条件的支持和鼓励让我能够安心求学，不必为生活的琐碎分心。每次打电话回家，父母总是说“别太累了，注意身体”，却从不问我什么时候能“出成果”。这份理解和支持，是我一路走来的最大底气。还要感谢我的姐姐，从小到大的陪伴和照顾让我从未感到孤单。这篇论文也是我献给家人的一份答卷，希望能让他们感到骄傲。
+毕业不是终点，而是新的起点。在未来的工作和学习中，我将继续保持对技术的热爱和对知识的敬畏，脚踏实地，砥砺前行。再次感谢所有帮助过我的人，愿你们平安喜乐，万事顺遂。
+

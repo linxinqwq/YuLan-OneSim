@@ -1,0 +1,1403 @@
+[
+  {
+    "id": "agenda_setting_theory",
+    "name": "Communication: agenda_setting_theory",
+    "category": "Communication",
+    "description": "Simulate how media influences public agenda by selecting specific topics and study the process of media agenda setting and its impact on public attention. Media Agents representing media institutions or news platforms and Public Agents representing audiences or public groups. The environment includes a topic library with various issues like social problems, political events, and economic phenomena, allowing media to select topics for reporting.",
+    "inputs_hint": [
+      "MediaAgent",
+      "PublicAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Public_Focus_Distribution",
+        "name": "Public Focus Distribution",
+        "description": "Measures the distribution of focus values across all Public Agents to understand how media reporting affects public attention."
+      },
+      {
+        "id": "Media_Reporting_Frequency_Analysis",
+        "name": "Media Reporting Frequency Analysis",
+        "description": "Analyzes the average reporting frequency of topics by Media Agents to assess media emphasis."
+      },
+      {
+        "id": "Emotional_Tone_Impact",
+        "name": "Emotional Tone Impact",
+        "description": "Evaluates the impact of emotional tone used by Media Agents on public focus values."
+      }
+    ],
+    "scene_info_path": "src/envs/agenda_setting_theory/scene_info.json",
+    "simenv_path": "src/envs/agenda_setting_theory/code/SimEnv.py"
+  },
+  {
+    "id": "antisocial_personality_theory",
+    "name": "Psychology: antisocial_personality_theory",
+    "category": "Psychology",
+    "description": "Simulate how individuals with antisocial personality traits exhibit specific behavioral patterns in social interactions, such as lack of empathy, manipulation, and violation of social norms. Individuals exhibiting antisocial personality traits engaging in social interactions. A social environment where individuals interact, potentially leading to conflict, manipulation, or violent behavior.",
+    "inputs_hint": [
+      "AntisocialAgent",
+      "SocialEnvironmentAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Manipulation_Strategy_Distribution",
+        "name": "Manipulation Strategy Distribution",
+        "description": "Measures the frequency of antisocial behaviors exhibited by agents, based on their interaction status and manipulation strategy."
+      }
+    ],
+    "scene_info_path": "src/envs/antisocial_personality_theory/scene_info.json",
+    "simenv_path": "src/envs/antisocial_personality_theory/code/SimEnv.py"
+  },
+  {
+    "id": "attribution_theory",
+    "name": "Psychology: attribution_theory",
+    "category": "Psychology",
+    "description": "Explore the application of attribution theory in social interactions through simulation of three LLM agents: Participant A, Participant B, and Feedbacker C. Three agents: Participant A, Participant B, Feedbacker C. Participant A and B engage in interactions; Feedbacker C analyzes attribution bias. The environment consists of interaction scenarios such as task collaboration and social dialogue where agents attribute behaviors to internal or external causes.",
+    "inputs_hint": [
+      "ParticipantA",
+      "ParticipantB",
+      "FeedbackerC"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Attribution_Type_Distribution",
+        "name": "Attribution Type Distribution",
+        "description": "Proportion of internal vs external attributions made by Participant A."
+      }
+    ],
+    "scene_info_path": "src/envs/attribution_theory/scene_info.json",
+    "simenv_path": "src/envs/attribution_theory/code/SimEnv.py"
+  },
+  {
+    "id": "auction_mechanism_simulation",
+    "name": "Economics: auction_mechanism_simulation",
+    "category": "Economics",
+    "description": "Simulate bidding behavior, information revelation processes, and market efficiency under various auction mechanisms to study strategy evolution among different types of buyers and sellers, and how market design impacts welfare distribution and efficiency. Includes Buyers characterized by id, private_value, risk_preference, budget, bidding_strategy, learning_rate, experience, and reputation; Sellers with id, reserve_price, production_cost, auction_preference, reputation, and strategy; Auction Platform with mechanism_type, fee_structure, transparency_level, history, and active_auctions; Speculators with id, capital, strategy, information_level, and risk_tolerance. The environment is characterized by market_liquidity, information_asymmetry, market_volatility, and regulation_strictness, affecting agent interactions and decision-making processes.",
+    "inputs_hint": [
+      "Buyer",
+      "Seller",
+      "AuctionPlatform",
+      "Speculator"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Bidding_Decision_Over_Time",
+        "name": "Bidding Decision Over Time",
+        "description": "Measures the average private valuation of buyers participating in auctions, providing insights into the perceived value of auctioned items."
+      },
+      {
+        "id": "Average_Seller_Reserve_Price",
+        "name": "Average Seller Reserve Price",
+        "description": "Compares the average reserve price set by sellers to their production costs, indicating pricing strategies and potential profit margins."
+      }
+    ],
+    "scene_info_path": "src/envs/auction_market_dynamics/scene_info.json",
+    "simenv_path": "src/envs/auction_market_dynamics/code/SimEnv.py"
+  },
+  {
+    "id": "bank_reserves",
+    "name": "Economics: bank_reserves",
+    "category": "Economics",
+    "description": "Simulate the impact of reserve requirements on bank lending behavior and financial stability when reserves are insufficient. Banks and Customers; banks perform lending operations based on reserve levels, while customers apply for loans based on economic conditions. A banking system where banks and customers interact, influenced by economic cycles and reserve requirements.",
+    "inputs_hint": [
+      "BankAgent",
+      "CustomerAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Bank_Reserve_Utilization",
+        "name": "Bank Reserve Utilization",
+        "description": "Monitors the ratio of actual reserves to reserve requirements across all banks, indicating overall reserve sufficiency."
+      }
+    ],
+    "scene_info_path": "src/envs/bank_reserves/scene_info.json",
+    "simenv_path": "src/envs/bank_reserves/code/SimEnv.py"
+  },
+  {
+    "id": "case_law_model",
+    "name": "Law: case_law_model",
+    "category": "Law",
+    "description": "Simulate case law using large language models (LLM) to analyze the evolution of court rulings and their impact on legal interpretation and precedent principles. Judge agents, case agents, precedent agents, socio-political environment agents, legal expert agents The environment includes various legal fields like criminal law, civil law, contract law, administrative law, influenced by social, political, and economic factors.",
+    "inputs_hint": [
+      "JudgeAgent",
+      "CaseAgent",
+      "PrecedentAgent",
+      "SocioPoliticalAgent",
+      "LegalExpertAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Precedents_Interpreted_Per_Judge",
+        "name": "Average Precedents Interpreted Per Judge",
+        "description": "Measures the average number of precedents interpreted by JudgeAgents, indicating their workload and engagement with past cases."
+      },
+      {
+        "id": "Legal_Context_Influence_on_Judgment",
+        "name": "Legal Context Influence on Judgment",
+        "description": "Analyzes how different legal contexts influence judgment results, providing insights into systemic biases or trends."
+      },
+      {
+        "id": "Socio_Political_Influence_on_Case_Outcomes",
+        "name": "Socio_Political Influence on Case Outcomes",
+        "description": "Examines the impact of socio-political factors on case outcomes, highlighting potential external influences on legal interpretations."
+      }
+    ],
+    "scene_info_path": "src/envs/case_law_model/scene_info.json",
+    "simenv_path": "src/envs/case_law_model/code/SimEnv.py"
+  },
+  {
+    "id": "cash_flow",
+    "name": "Economics: cash_flow",
+    "category": "Economics",
+    "description": "The goal is to simulate a simple economic system where multiple companies manage cash flow and make decisions to sustain operations, aiming to study the impact of cash flow on company decision-making, capital efficiency, and survival capability. Companies managing cash flow, Banks providing loan services, Consumers affecting company revenue. The environment includes companies with varying cash reserves, banks with loan conditions and interest rates, and consumers whose spending habits affect company revenue.",
+    "inputs_hint": [
+      "CompanyAgent",
+      "BankAgent",
+      "ConsumerAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Total_Loan_Amount_Approved_by_Banks",
+        "name": "Total Loan Amount Approved by Banks",
+        "description": "Tracks the total amount of loans approved by all BankAgents, indicating the level of financial support provided to companies."
+      }
+    ],
+    "scene_info_path": "src/envs/cash_flow/scene_info.json",
+    "simenv_path": "src/envs/cash_flow/code/SimEnv.py"
+  },
+  {
+    "id": "cognitive_dissonance_theory",
+    "name": "Psychology: cognitive_dissonance_theory",
+    "category": "Psychology",
+    "description": "Simulate cognitive dissonance theory using three LLM agents to study the conflict between behavior and belief. Three agents: Actor A, Observer B, and Feedbacker C. A simulated environment where agents interact based on cognitive dissonance scenarios.",
+    "inputs_hint": [
+      "ActorA",
+      "ObserverB",
+      "FeedbackerC"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_dissonance_level",
+        "name": "average_dissonance_level",
+        "description": "Measures the average dissonance level experienced by Actor A across all scenarios."
+      },
+      {
+        "id": "feedback_quality_distribution",
+        "name": "feedback_quality_distribution",
+        "description": "Shows the distribution of feedback quality scores provided by Observer B."
+      },
+      {
+        "id": "strategy_type_proportion",
+        "name": "strategy_type_proportion",
+        "description": "Represents the proportion of each strategy type chosen by Actor A to reduce dissonance."
+      }
+    ],
+    "scene_info_path": "src/envs/cognitive_dissonance_theory/scene_info.json",
+    "simenv_path": "src/envs/cognitive_dissonance_theory/code/SimEnv.py"
+  },
+  {
+    "id": "collective_action_problem",
+    "name": "Economics: collective_action_problem",
+    "category": "Economics",
+    "description": "Simulate individual decision-making in collective action scenarios to analyze conflicts between individual and collective interests and explore solutions to collective action dilemmas. Individual: Each individual decides whether to cooperate in collective actions based on personal cost and benefit. Group: Evaluates whether collective goals are met based on individual behaviors. The environment consists of multiple individuals and a group, with individuals having random cooperation willingness and the group having set goals and benefits.",
+    "inputs_hint": [
+      "Individual",
+      "Group"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Cooperation_Willingness",
+        "name": "Average Cooperation Willingness",
+        "description": "Measures the average willingness of individuals to cooperate in collective actions."
+      },
+      {
+        "id": "Collective_Action_Success_Rate",
+        "name": "Collective Action Success Rate",
+        "description": "Indicates the proportion of time the collective action is successful."
+      },
+      {
+        "id": "Total_Group_Benefit",
+        "name": "Total Group Benefit",
+        "description": "Represents the total benefit achieved by the group from individual cooperation."
+      }
+    ],
+    "scene_info_path": "src/envs/collective_action_problem/scene_info.json",
+    "simenv_path": "src/envs/collective_action_problem/code/SimEnv.py"
+  },
+  {
+    "id": "community_health_mobilization_theory",
+    "name": "Demographics: community_health_mobilization_theory",
+    "category": "Demographics",
+    "description": "Simulate the process of community health mobilization focusing on interactions between community members, leaders, and public health experts to drive health improvements through collective action. Community Leader, Community Member, Public Health Expert Community background including socioeconomic status, cultural context, health issues, and available resources affecting mobilization outcomes.",
+    "inputs_hint": [
+      "CommunityLeader",
+      "CommunityMember",
+      "PublicHealthExpert"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Community_Mobilization_Status",
+        "name": "Community Mobilization Status",
+        "description": "Tracks the proportion of community leaders actively engaged in mobilization activities."
+      },
+      {
+        "id": "Community_Participation_Rate",
+        "name": "Community Participation Rate",
+        "description": "Measures the average participation rate of community members in health mobilization activities."
+      },
+      {
+        "id": "Guidance_Provision_Status",
+        "name": "Guidance Provision Status",
+        "description": "Analyzes the distribution of guidance statuses provided by public health experts."
+      }
+    ],
+    "scene_info_path": "src/envs/community_health_mobilization_theory/scene_info.json",
+    "simenv_path": "src/envs/community_health_mobilization_theory/code/SimEnv.py"
+  },
+  {
+    "id": "court_trial_simulation",
+    "name": "Law: court_trial_simulation",
+    "category": "Law",
+    "description": "Simulate decision-making and interactions in court trials to explore how evidence presentation, persuasion strategies, cognitive biases, and procedural factors affect judicial outcomes, while assessing fairness and efficiency across different legal systems. Achieve quantifiable analysis of judicial processes through standardized models of judicial procedures and agent behaviors. Defendant, Prosecutor, Defense Lawyer, Judge, Jury, Witness. Each agent type has specific state variables and behavioral capabilities that influence their role in the trial process. Includes legal system type (common law with jury/civil law with judge ruling), court backlog affecting trial time and resource allocation, public attention impacting behavior pressure and media coverage, strength of relevant precedents affecting legal arguments and judgment basis, and procedural rule strictness influencing evidence admission standards and trial flow.",
+    "inputs_hint": [
+      "Defendant",
+      "Prosecutor",
+      "DefenseLawyer",
+      "Judge",
+      "Jury",
+      "Witness"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Prosecution_Decision_Rate",
+        "name": "Prosecution Decision Rate",
+        "description": "Measures the proportion of prosecution decisions made by prosecutors, indicating the level of activity and decision-making within the prosecution process."
+      },
+      {
+        "id": "Jury_Verdict_Distribution",
+        "name": "Jury Verdict Distribution",
+        "description": "Shows the distribution of verdicts made by juries, providing insight into the outcomes of trials and the decision-making tendencies of juries."
+      }
+    ],
+    "scene_info_path": "src/envs/court_trial_simulation/scene_info.json",
+    "simenv_path": "src/envs/court_trial_simulation/code/SimEnv.py"
+  },
+  {
+    "id": "cultural_capital_theory",
+    "name": "Sociology: cultural_capital_theory",
+    "category": "Sociology",
+    "description": "To study how cultural capital influences individual social mobility and to explore the effects of education and distribution of social resources. Individuals with varying levels of cultural capital and social structures representing different social classes. A societal system with different social classes where individuals possess varying levels of cultural, economic, and social capital.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "SocialStructureAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Cultural_Capital_Level",
+        "name": "Average Cultural Capital Level",
+        "description": "This metric measures the average level of cultural capital among all IndividualAgents."
+      },
+      {
+        "id": "Education_Decision_Rate",
+        "name": "Education Decision Rate",
+        "description": "This metric measures the proportion of IndividualAgents who have decided to pursue education."
+      },
+      {
+        "id": "Job_Search_Status_Distribution",
+        "name": "Job Search Status Distribution",
+        "description": "This metric shows the distribution of IndividualAgents across different job search statuses."
+      }
+    ],
+    "scene_info_path": "src/envs/cultural_capital_theory/scene_info.json",
+    "simenv_path": "src/envs/cultural_capital_theory/code/SimEnv.py"
+  },
+  {
+    "id": "customer_satisfaction_and_loyalty_model",
+    "name": "Economics: customer_satisfaction_and_loyalty_model",
+    "category": "Economics",
+    "description": "Observe how dynamic changes in service quality and product experience impact customer satisfaction, loyalty, and purchasing decisions. Customers are the core simulation objects, each with attributes: perceived service quality (range [0,1]), product experience score (range [0,1]), satisfaction (calculated from service and product experience), loyalty (accumulated based on historical satisfaction), purchase probability (determined by loyalty and current satisfaction). Merchant system with baseline service quality and product quality as system-level variables influencing all customers' perceptions. The system operates on discrete time steps, each representing a standardized decision cycle over 10 periods.",
+    "inputs_hint": [
+      "CustomerAgent",
+      "MerchantAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Customer_Satisfaction",
+        "name": "Average Customer Satisfaction",
+        "description": "Measures the average satisfaction level of all customers in the system, indicating overall customer contentment with service and product quality."
+      },
+      {
+        "id": "Customer_Loyalty_Distribution",
+        "name": "Customer Loyalty Distribution",
+        "description": "Shows the distribution of customer loyalty levels, helping to understand how many customers are loyal versus those who are not."
+      },
+      {
+        "id": "Purchase_Decision_Rate",
+        "name": "Purchase Decision Rate",
+        "description": "Tracks the proportion of customers making a purchase decision, providing insight into the effectiveness of service and product quality."
+      }
+    ],
+    "scene_info_path": "src/envs/customer_satisfaction_and_loyalty_model/scene_info.json",
+    "simenv_path": "src/envs/customer_satisfaction_and_loyalty_model/code/SimEnv.py"
+  },
+  {
+    "id": "decision_theory",
+    "name": "Psychology: decision_theory",
+    "category": "Psychology",
+    "description": "The simulation aims to model different decision-making processes within decision theory using LLMs, studying how choices are made in uncertain and complex environments. It analyzes decision-makers' behaviors when faced with limited information and multiple options, focusing on decision processes in the presence of risks, costs, utilities, and how to make optimal decisions based on goals and constraints. Decision Maker Agents representing individuals or teams making choices based on different criteria such as cost, utility, and risk. Environment Agents representing external factors affecting decisions, simulating uncertainty, risks, and resource constraints. Alternative Options Agents representing different choices faced by decision-makers, each with distinct costs, utilities, and risks. The environment includes elements of uncertainty, risk, and resource constraints that impact decision-making. It simulates various factors influencing decisions, such as external conditions, available information, and constraints that decision-makers must navigate.",
+    "inputs_hint": [
+      "DecisionMakerAgent",
+      "EnvironmentAgent",
+      "AlternativeOptionsAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_decision_making_time",
+        "name": "average_decision_making_time",
+        "description": "Measures the average time taken by Decision Maker Agents to make a decision."
+      },
+      {
+        "id": "decision_quality_distribution",
+        "name": "decision_quality_distribution",
+        "description": "Shows the distribution of decision qualities (e.g., optimal, suboptimal) made by Decision Maker Agents."
+      },
+      {
+        "id": "information_collection_rate",
+        "name": "information_collection_rate",
+        "description": "Measures the rate at which Decision Maker Agents collect information over time."
+      }
+    ],
+    "scene_info_path": "src/envs/decision_theory/scene_info.json",
+    "simenv_path": "src/envs/decision_theory/code/SimEnv.py"
+  },
+  {
+    "id": "diffusion_of_innovations",
+    "name": "Communication: diffusion_of_innovations",
+    "category": "Communication",
+    "description": "Simulate how innovations spread in a social system, analyze how different types of individuals influence the diffusion process, and validate the basic assumptions of information dissemination models. Innovators, Early Adopters, Early Majority, Late Majority, Laggards A social system consisting of various individuals connected through a social network where the diffusion of innovation is influenced by network structure, social status, and trust in innovation.",
+    "inputs_hint": [
+      "Innovators",
+      "EarlyAdopters",
+      "EarlyMajority",
+      "LateMajority",
+      "Laggards"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Innovation_Adoption_Rate",
+        "name": "Innovation Adoption Rate",
+        "description": "Measures the percentage of agents who have adopted the innovation across all agent types."
+      },
+      {
+        "id": "Network_Connectivity_Impact",
+        "name": "Network Connectivity Impact",
+        "description": "Analyzes the influence of network connections on the spread of innovation."
+      },
+      {
+        "id": "Relative_Advantage_vs_Adoption",
+        "name": "Relative Advantage vs Adoption",
+        "description": "Compares the relative advantage of the innovation with the adoption status across agent types."
+      }
+    ],
+    "scene_info_path": "src/envs/diffusion_of_innovations/scene_info.json",
+    "simenv_path": "src/envs/diffusion_of_innovations/code/SimEnv.py"
+  },
+  {
+    "id": "disease_spread_simulation",
+    "name": "Demographics: disease_spread_simulation",
+    "category": "Demographics",
+    "description": "Simulate the spread of disease within a population to study how individual behavior, demographic characteristics, interventions, and information dissemination affect epidemic dynamics, as well as evaluate the effectiveness of healthcare resource allocation and public health policies. Individuals with attributes such as id, age, health_status, infection_time, symptoms_severity, vaccination_status, risk_perception, compliance_tendency, mobility_pattern, social_contacts, demographic_group, information_sources, trust_in_authorities; Households with attributes like id, members, location, size, quarantine_status, infection_risk; Public Health Authorities with attributes including testing_capacity, contact_tracing_efficiency, policy_options, communication_strategy, credibility, resource_allocation; Healthcare Facilities with attributes such as location, capacity, current_occupancy, staff_level, treatment_effectiveness, resource_level. Includes disease_parameters like basic reproduction number R0, incubation period, infectious period; information_environment with accuracy and coverage; economic_pressure affecting policy implementation and individual behavior; vaccination_availability; and population_density distribution.",
+    "inputs_hint": [
+      "Individual",
+      "Household",
+      "PublicHealthAuthority",
+      "HealthcareFacility"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Infection_Rate_Over_Time",
+        "name": "Infection Rate Over Time",
+        "description": "Measures the percentage of the population that is infected over time, providing insights into the spread of the disease and the effectiveness of interventions."
+      },
+      {
+        "id": "Resource_Utilization_by_Healthcare_Facilities",
+        "name": "Resource Utilization by Healthcare Facilities",
+        "description": "Measures the utilization of healthcare facilities in terms of occupancy and staff levels, providing insights into the strain on the healthcare system."
+      }
+    ],
+    "scene_info_path": "src/envs/epidemic_transmission_network/scene_info.json",
+    "simenv_path": "src/envs/epidemic_transmission_network/code/SimEnv.py"
+  },
+  {
+    "id": "dynamic_culture_dissemination",
+    "name": "Sociology: dynamic_culture_dissemination",
+    "category": "Sociology",
+    "description": "To study the simplified process of cultural dissemination using cultural traits as markers, exploring the dynamics of cultural spread in social networks. Single type of agent, each possessing preferences across five cultural dimensions: music preference, culinary preference, fashion style, political orientation, and leisure activity. A social network with connections between agents, where each agent interacts with others to recommend cultural traits.",
+    "inputs_hint": [
+      "CulturalAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "cultural_distribution",
+        "name": "Cultural Traits Distribution",
+        "description": "Tracks the distribution of different cultural traits across five dimensions over time."
+      },
+      {
+        "id": "cultural_homogeneity",
+        "name": "Cultural Homogeneity Index",
+        "description": "Measures how uniform the culture is across the network, ranging from 0 (complete diversity) to 1 (complete homogeneity)."
+      },
+      {
+        "id": "adoption_rate",
+        "name": "Cultural Trait Adoption Rate",
+        "description": "Percentage of recommendations that result in cultural trait adoption per round."
+      },
+      {
+        "id": "cultural_regions",
+        "name": "Cultural Regions by Dimension",
+        "description": "Counts the number of connected agent groups that share the same cultural trait in each dimension."
+      },
+      {
+        "id": "influence_distribution",
+        "name": "Agent Influence Distribution",
+        "description": "Visualizes which agents have successfully influenced others to adopt their cultural traits."
+      },
+      {
+        "id": "dimension_influence",
+        "name": "Dimension Adoption Frequency",
+        "description": "Analyzes which cultural dimensions are more readily transmitted and adopted."
+      }
+    ],
+    "scene_info_path": "src/envs/dynamic_culture_dissemination/scene_info.json",
+    "simenv_path": "src/envs/dynamic_culture_dissemination/code/SimEnv.py"
+  },
+  {
+    "id": "election_process_simulation",
+    "name": "Politics: election_process_simulation",
+    "category": "Politics",
+    "description": "Simulate the dynamics of party competition, media influence, and voter behavior during elections to understand the impact of different electoral systems, media environments, and social network structures on political polarization and stability. 1. Voter: Attributes include id, ideology, party_identification, issue_positions, issue_importance, information_level, media_consumption, social_network, voting_history, susceptibility, economic_status, demographic_group. 2. Party: Attributes include id, ideology, platform, resources, strategy, base_voters, target_voters, message_framing, leadership, history. 3. Media: Attributes include id, type, ideology_bias, audience_reach, credibility, framing_strategy, agenda_setting_power, content_selection_bias, audience_demographics. 4. Interest_Group: Attributes include id, interests, resources, influence_strategy, connections, public_support, lobbying_effectiveness. Includes electoral_system, polarization_index, economic_conditions, salient_issues, media_environment_diversity, and external_shocks. The environment simulates the electoral system type, economic conditions, and external shocks impacting the political landscape.",
+    "inputs_hint": [
+      "Voter",
+      "Party",
+      "Media",
+      "InterestGroup"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Media_Ideology_Bias_Distribution",
+        "name": "Media Ideology Bias Distribution",
+        "description": "Proportion of media outlets with different ideological biases to understand the media landscape's diversity."
+      },
+      {
+        "id": "Average_Voter_Information_Level",
+        "name": "Average Voter Information Level",
+        "description": "Average level of information among voters, indicating how informed the electorate is."
+      },
+      {
+        "id": "Party_Strategy_Change_Rate",
+        "name": "Party Strategy Change Rate",
+        "description": "Percentage of parties that have changed their strategy in the current cycle, indicating strategic shifts."
+      }
+    ],
+    "scene_info_path": "src/envs/electoral_polarization_system/scene_info.json",
+    "simenv_path": "src/envs/electoral_polarization_system/code/SimEnv.py"
+  },
+  {
+    "id": "emotional_contagion_model",
+    "name": "Psychology: emotional_contagion_model",
+    "category": "Psychology",
+    "description": "Simulate the process of emotional contagion to study how emotions spread among individuals and affect the overall emotional atmosphere of a group. Individual agents representing group members, each with an emotional state such as joy, sadness, or anger. A social network structure where agents interact through various forms of communication, influencing each other's emotional states.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "CommunicationAgent",
+      "DecisionAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Emotional_Intensity",
+        "name": "Average Emotional Intensity",
+        "description": "Measures the average intensity of emotions communicated by agents in the system."
+      },
+      {
+        "id": "Emotional_State_Distribution",
+        "name": "Emotional State Distribution",
+        "description": "Shows the proportion of agents in different emotional states to understand the emotional atmosphere of the group."
+      },
+      {
+        "id": "Contact_Frequency_Analysis",
+        "name": "Contact Frequency Analysis",
+        "description": "Evaluates the frequency of interactions between agents to assess communication patterns."
+      }
+    ],
+    "scene_info_path": "src/envs/emotional_contagion_model/scene_info.json",
+    "simenv_path": "src/envs/emotional_contagion_model/code/SimEnv.py"
+  },
+  {
+    "id": "hawthorne_studies",
+    "name": "Organization: hawthorne_studies",
+    "category": "Organization",
+    "description": "Simulate the Hawthorne experiments using LLM to study how employee productivity, job satisfaction, and motivation change under different work environments and social interaction conditions. The simulation includes employee reactions to being observed, the impact of leader attention on productivity, and how team interactions affect overall performance. The goal is to understand the role of social factors in work performance through emotional responses and social interactions. Worker Agents: Represent employees whose behavior and performance are influenced by leadership attention, team atmosphere, and social interactions. Leader Agents: Manage and guide employees, enhancing productivity through care and attention. Team Agents: Represent different team members, simulating how interaction, cooperation, and emotional support affect work performance. Physical Environment: Simulates various physical environment changes (e.g., lighting, work hours) from the Hawthorne experiments and analyzes how these changes interact with social factors like leadership attention. Leadership Attention: Simulates how leaders motivate employees through attention, feedback, and communication to improve productivity. Team Interaction: Simulates interaction and cooperation among team members to study how social relations and team atmosphere enhance overall work efficiency.",
+    "inputs_hint": [
+      "WorkerAgent",
+      "LeaderAgent",
+      "TeamAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_worker_productivity",
+        "name": "average_worker_productivity",
+        "description": "Measures the average productivity level of all Worker Agents."
+      },
+      {
+        "id": "leadership_attention_impact",
+        "name": "leadership_attention_impact",
+        "description": "Assesses the correlation between leadership attention levels and worker productivity."
+      },
+      {
+        "id": "emotional_state_distribution",
+        "name": "emotional_state_distribution",
+        "description": "Shows the distribution of emotional states among Worker Agents."
+      }
+    ],
+    "scene_info_path": "src/envs/hawthorne_studies/scene_info.json",
+    "simenv_path": "src/envs/hawthorne_studies/code/SimEnv.py"
+  },
+  {
+    "id": "health_belief_model",
+    "name": "Psychology: health_belief_model",
+    "category": "Psychology",
+    "description": "Simulate individual decision-making in the face of health threats using the Health Belief Model (HBM) and explore how perception of threat, benefits, barriers, and self-efficacy influence health behavior adoption. The system uses multiple agents representing individuals, families, communities, and government entities. The environment includes social settings where individuals, families, communities, and government interact, influenced by health policies, social support, and available resources.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "FamilyAgent",
+      "CommunityAgent",
+      "GovernmentAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_perceived_threat_level",
+        "name": "average_perceived_threat_level",
+        "description": "Measures the average perceived threat level across all IndividualAgents, indicating overall perception of health threats in the system."
+      },
+      {
+        "id": "policy_impact_distribution",
+        "name": "policy_impact_distribution",
+        "description": "Shows the distribution of policy impact across GovernmentAgents, providing insights into how various policies are influencing health behaviors."
+      },
+      {
+        "id": "behavior_adoption_success_rate",
+        "name": "behavior_adoption_success_rate",
+        "description": "Tracks the success rate of adopted health behaviors among IndividualAgents, indicating the effectiveness of health belief factors in behavior change."
+      }
+    ],
+    "scene_info_path": "src/envs/health_belief_model/scene_info.json",
+    "simenv_path": "src/envs/health_belief_model/code/SimEnv.py"
+  },
+  {
+    "id": "health_inequality",
+    "name": "Demographics: health_inequality",
+    "category": "Demographics",
+    "description": "Simulate and understand the causes and mechanisms behind health inequalities by modeling complex interactions between individuals, families, communities, and societal institutions. Use simulations to predict how health policies, education, and healthcare services impact health inequalities among different groups such as low-income populations, minority groups, rural and urban residents. Provide effective policy recommendations to reduce health inequalities by analyzing the combined effects of social determinants. The agents in the model represent different individuals and groups in society, making health-related decisions based on socioeconomic conditions, education levels, and health behaviors. Individual agents simulate people of different genders, ages, socioeconomic backgrounds, cultures, and ethnicities, with their health influenced by living conditions, education, income, and healthcare resource availability. Family agents play a crucial role in health decisions, affecting family members' health through decisions on nutrition, education, and health behaviors. Community agents, as basic social structure units, influence residents' health levels through social capital, public resources, and medical facilities. Government agents determine the distribution of health resources and opportunities through health policies, medical security systems, and educational policies. Healthcare system agents simulate how healthcare systems in different regions affect individual health, including service accessibility, quality, and insurance. The environment includes various socioeconomic conditions and healthcare systems that influence health inequalities. It involves different groups such as low-income populations, minority groups, rural and urban residents, and factors like income level, education level, social capital, health behaviors, and healthcare accessibility. The simulation environment evolves through stages: initial state with significant health inequalities, social intervention phase with policy introductions, and long-term effects phase to evaluate the impact of policies on health inequalities.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "FamilyAgent",
+      "CommunityAgent",
+      "GovernmentAgent",
+      "HealthcareSystemAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Income_Level_by_Education",
+        "name": "Average Income Level by Education",
+        "description": "This metric measures the average income level of individuals categorized by their education level. It provides insight into how income varies with education, which is a key factor in health inequalities."
+      },
+      {
+        "id": "Resource_Distribution_Efficiency",
+        "name": "Resource Distribution Efficiency",
+        "description": "This metric evaluates how efficiently government resources are being distributed across different target populations. It helps identify disparities in resource allocation."
+      },
+      {
+        "id": "Healthcare_Accessibility_Impact",
+        "name": "Healthcare Accessibility Impact",
+        "description": "This metric tracks changes in healthcare accessibility by analyzing the average resource availability in healthcare systems over time. It indicates the impact of policy interventions on healthcare access."
+      }
+    ],
+    "scene_info_path": "src/envs/health_inequality/scene_info.json",
+    "simenv_path": "src/envs/health_inequality/code/SimEnv.py"
+  },
+  {
+    "id": "hierarchy_of_needs",
+    "name": "Organization: hierarchy_of_needs",
+    "category": "Organization",
+    "description": "To use a Large Language Model (LLM) to simulate how an individual progresses from basic physiological needs to self-actualization needs within an organizational or team environment. The simulation explores how satisfying different levels of needs influences individual behavior, motivation, and decision-making through interactions with other individuals or systems. Scenarios include virtual companies or social environments where individuals interact based on their need levels, affecting work performance, collaboration, and personal growth. Agents are individuals with varying levels of needs, ranging from physiological to self-actualization. Each agent can exhibit focus or motivation toward a particular level of need at different times. The environment includes organizational culture, work pressure, social networks, leadership styles, and other factors that impact the process of need satisfaction for agents.",
+    "inputs_hint": [
+      "PhysiologicalAgent",
+      "SocialAgent",
+      "SelfActualizationAgent",
+      "FeedbackAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Physiological_Needs_Fulfillment_Rate",
+        "name": "Physiological Needs Fulfillment Rate",
+        "description": "Measures the proportion of PhysiologicalAgents whose physiological needs are marked as 'fulfilled'."
+      },
+      {
+        "id": "Average_Social_Interactions_Needed",
+        "name": "Average Social Interactions Needed",
+        "description": "Calculates the average number of social interactions needed by SocialAgents to satisfy their social needs."
+      },
+      {
+        "id": "Self_Actualization_Goals_Progress",
+        "name": "Self-Actualization Goals Progress",
+        "description": "Tracks the progress of SelfActualizationAgents towards their self-actualization goals."
+      }
+    ],
+    "scene_info_path": "src/envs/hierarchy_of_needs/scene_info.json",
+    "simenv_path": "src/envs/hierarchy_of_needs/code/SimEnv.py"
+  },
+  {
+    "id": "information_cascade_and_silence",
+    "name": "Communication: information_cascade_and_silence",
+    "category": "Communication",
+    "description": "Simulate the process of rumor propagation and the formation of the spiral of silence in social networks, and study how mechanisms such as information verification, social pressure, opinion climate perception, and media environment influence information diffusion and willingness to express opinions publicly. The system includes five main agent types: (1) Ordinary Users (User): Represent individual users in social networks with attributes such as belief, expressed_opinion, certainty, verification_tendency, conformity_tendency, and isolation_fear. (2) Opinion Leaders: Represent influential users with additional attributes like influence, followers, and content_creation, inheriting all attributes of ordinary users. (3) Media Organizations: Represent traditional or social media platforms with attributes like reach, credibility, editorial_policy, and fact_checking_rigor. (4) Fact-Check Organizations: Represent third-party organizations dedicated to verifying information, with attributes like detection_ability, response_speed, credibility, and reach. (5) Platform Regulators: Represent social media platform content management teams with attributes such as monitoring_ability, intervention_strength, and response_time. The environment consists of a social network structure defining connections between users, an information environment characterized by noise and diversity, and the degree of social polarization reflecting the division between different opinion groups.",
+    "inputs_hint": [
+      "OrdinaryUser",
+      "OpinionLeader",
+      "MediaOrganization",
+      "FactCheckOrganization",
+      "PlatformRegulator"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_credibility_score",
+        "name": "average_credibility_score",
+        "description": "Measures the average credibility score of information as evaluated by Ordinary Users. This reflects the overall perception of information reliability in the system."
+      },
+      {
+        "id": "fact_checking_rumor_detection_rate",
+        "name": "fact_checking_rumor_detection_rate",
+        "description": "Measures the average number of rumors detected by Fact-Check Organizations. This reflects the effectiveness of fact-checking efforts in identifying misinformation."
+      }
+    ],
+    "scene_info_path": "src/envs/information_cascade_and_silence/scene_info.json",
+    "simenv_path": "src/envs/information_cascade_and_silence/code/SimEnv.py"
+  },
+  {
+    "id": "labor_market_simulation",
+    "name": "Economics: labor_market_simulation",
+    "category": "Economics",
+    "description": "Simulate the job seeking and recruitment process in the labor market to study information asymmetry, signaling, matching efficiency, bias, and the impact of different recruitment strategies and job-seeking behaviors on market outcomes and fairness. Job_Seeker: Attributes include id, skills, education, experience, productivity, salary_expectation, job_preferences, network, risk_attitude, job_search_strategy, negotiation_style, observable_traits, reservation_wage. Employer: Attributes include id, industry, size, jobs, compensation_structure, culture, hiring_criteria, screening_methods, bias, reputation, historical_hires, turnover_rate. Recruitment_Channel: Attributes include type, reach, cost, information_richness, filtering_mechanism, matching_algorithm. Labor market tightness, economic conditions, regulatory environment, skill demand trends, technological change rate.",
+    "inputs_hint": [
+      "JobSeeker",
+      "Employer",
+      "RecruitmentChannel"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_job_seeker_experience",
+        "name": "average_job_seeker_experience",
+        "description": "Measures the average years of experience among job seekers, providing insights into the overall experience level of the job-seeking population."
+      },
+      {
+        "id": "job_application_success_rate",
+        "name": "job_application_success_rate",
+        "description": "Measures the proportion of job applications that result in successful negotiations, indicating the efficiency of job matching and negotiation processes."
+      },
+      {
+        "id": "employer_screening_efficiency",
+        "name": "employer_screening_efficiency",
+        "description": "Evaluates the efficiency of employers in screening candidates by comparing the number of screened candidates to the number of posted jobs."
+      }
+    ],
+    "scene_info_path": "src/envs/labor_market_matching_process/scene_info.json",
+    "simenv_path": "src/envs/labor_market_matching_process/code/SimEnv.py"
+  },
+  {
+    "id": "life_course_theory",
+    "name": "Demographics: life_course_theory",
+    "category": "Demographics",
+    "description": "Simulate individual behaviors and decisions across different life stages to analyze the impact of various social, economic, and environmental factors on health and social behavior. Individual agents representing different life stages, family agents, education system agents, government agents, healthcare system agents. The environment includes socioeconomic conditions, educational systems, healthcare systems, and government policies affecting individuals throughout their life course.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "FamilyAgent",
+      "EducationSystemAgent",
+      "GovernmentAgent",
+      "HealthcareSystemAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Educational_Resources_Utilization",
+        "name": "Average Educational Resources Utilization",
+        "description": "Measures the average utilization of educational resources across the system."
+      },
+      {
+        "id": "Healthcare_Service_Evaluation_Rate",
+        "name": "Healthcare Service Evaluation Rate",
+        "description": "Tracks the rate at which healthcare services are evaluated by HealthcareSystemAgents."
+      },
+      {
+        "id": "Policy_Implementation_Success_Rate",
+        "name": "Policy Implementation Success Rate",
+        "description": "Represents the proportion of policies successfully implemented by GovernmentAgents."
+      }
+    ],
+    "scene_info_path": "src/envs/life_course_theory/scene_info.json",
+    "simenv_path": "src/envs/life_course_theory/code/SimEnv.py"
+  },
+  {
+    "id": "metacognition_theory",
+    "name": "Psychology: metacognition_theory",
+    "category": "Psychology",
+    "description": "Simulate multiple LLM agents using metacognition to monitor and regulate their cognitive processes while executing tasks. Three agents: Task Executor, Monitor, Evaluator. The environment involves executing tasks that require reflection on cognitive processes, such as solving complex math problems or writing essays.",
+    "inputs_hint": [
+      "TaskExecutor",
+      "Monitor",
+      "Evaluator"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Strategy_Adjustments",
+        "name": "Average Strategy Adjustments",
+        "description": "Calculates the average number of strategy changes made by Task Executor agents during task execution."
+      }
+    ],
+    "scene_info_path": "src/envs/metacognition_theory/scene_info.json",
+    "simenv_path": "src/envs/metacognition_theory/code/SimEnv.py"
+  },
+  {
+    "id": "norm_formation_theory",
+    "name": "Sociology: norm_formation_theory",
+    "category": "Sociology",
+    "description": "To study how group norms form through interaction and observation, and to explore how these norms are maintained or changed. Entities (Agents) include Individuals, which are intelligent agents with different behavior tendencies, and Social Groups, which are interactive units composed of multiple individuals. The environment consists of multiple individuals with varying behavior tendencies randomly assigned to different social groups, where they interact and observe each other to form or adapt to group norms.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "SocialGroupAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_group_norm_conformity",
+        "name": "average_group_norm_conformity",
+        "description": "Measures the average level of conformity to group norms across all individual agents."
+      },
+      {
+        "id": "group_pressure_distribution",
+        "name": "group_pressure_distribution",
+        "description": "Shows the distribution of group pressure experienced by individual agents, indicating how pressure is spread across different groups."
+      },
+      {
+        "id": "average_norm_acceptance",
+        "name": "average_norm_acceptance",
+        "description": "Represents the proportion of social groups that have undergone norm changes."
+      }
+    ],
+    "scene_info_path": "src/envs/norm_formation_theory/scene_info.json",
+    "simenv_path": "src/envs/norm_formation_theory/code/SimEnv.py"
+  },
+  {
+    "id": "organizational_change_and_adaptation_theory",
+    "name": "Organization: organizational_change_and_adaptation_theory",
+    "category": "Organization",
+    "description": "The goal of this simulation is to use large language models (LLMs) to simulate how organizations undergo change and adaptation in response to internal and external shifts. The simulation explores how employees, leaders, and managers within an organization respond to change, focusing on communication, feedback, and adjustment mechanisms during the change process. By simulating adaptation to various types of change, the LLM helps us understand how change implementation affects employee behavior, work performance, and organizational culture transformation. Employee Agents: Represent employees within the organization, showing varied responses to change such as support, resistance, or adaptation. Their behavior and emotional responses are influenced by the type of change and leadership style. Leader Agents: Guide the change process, making crucial decisions, communicating, and providing feedback. They help employees adapt through encouragement, motivation, and coordination. Manager Agents: Oversee the specific execution of changes, ensuring the process proceeds as planned and assisting employees in overcoming resistance. The environment includes a simulated organizational setting where different types of changes occur, such as incremental improvements, rapid adjustments due to market shifts, and strategic realignments. The environment is dynamic, with interactions among various agents representing different organizational roles and levels.",
+    "inputs_hint": [
+      "EmployeeAgent",
+      "LeaderAgent",
+      "ManagerAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Employee_Feedback_Sentiment",
+        "name": "Employee Feedback Sentiment",
+        "description": "Measures the overall sentiment of employee feedback regarding organizational changes."
+      },
+      {
+        "id": "Change_Goals_Completion_Rate",
+        "name": "Change Goals Completion Rate",
+        "description": "Tracks the percentage of change goals set by LeaderAgents that have been successfully reported as completed."
+      },
+      {
+        "id": "Manager_Execution_Effectiveness",
+        "name": "Manager Execution Effectiveness",
+        "description": "Evaluates how effectively managers are executing change strategies by comparing planned strategies to execution status."
+      }
+    ],
+    "scene_info_path": "src/envs/organizational_change_and_adaptation_theory/scene_info.json",
+    "simenv_path": "src/envs/organizational_change_and_adaptation_theory/code/SimEnv.py"
+  },
+  {
+    "id": "public_opinion_polling",
+    "name": "Politics: public_opinion_polling",
+    "category": "Politics",
+    "description": "Study how public opinion polling gathers information through voter interaction, analyze dynamic changes in voter preferences, and understand how polling data influences policy choices. Voters, who are participants in opinion polls and express preferences for policies or candidates; Pollsters, who collect voter opinions and may interact with voters during polling. The environment consists of voters and pollsters interacting within a political context where voters express preferences and pollsters gather data.",
+    "inputs_hint": [
+      "Voter",
+      "Pollster"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Pollster_Completion_Rate",
+        "name": "Pollster Completion Rate",
+        "description": "Measures the percentage of polls completed by pollsters."
+      },
+      {
+        "id": "Voter_Preference_Dynamics",
+        "name": "Voter Preference Dynamics",
+        "description": "Tracks changes in voter preferences over time to analyze dynamic shifts."
+      },
+      {
+        "id": "Pollster_Voter_Interaction_Count",
+        "name": "Pollster_Voter Interaction Count",
+        "description": "Counts the number of interactions between pollsters and voters."
+      }
+    ],
+    "scene_info_path": "src/envs/public_opinion_polling/scene_info.json",
+    "simenv_path": "src/envs/public_opinion_polling/code/SimEnv.py"
+  },
+  {
+    "id": "rational_choice_theory",
+    "name": "Economics: rational_choice_theory",
+    "category": "Economics",
+    "description": "Simulate how individuals make choices based on rational decision-making, validating the basic assumptions of rational choice theory, focusing on how agents evaluate the utility of options and make decisions based on utility maximization. Individual agents representing rational decision-making individuals, each with different resources, needs, and goals influencing their decision processes. The simulation environment includes multiple scenarios or decision options, each with different costs and benefits, requiring agents to weigh these factors to make optimal decisions.",
+    "inputs_hint": [
+      "RationalDecisionMaker",
+      "UtilityEvaluator",
+      "SocialNetworkInteractor"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Utility_Value",
+        "name": "Average Utility Value",
+        "description": "This metric measures the average utility value across all UtilityEvaluator agents, providing insight into overall satisfaction or effectiveness of decision-making."
+      }
+    ],
+    "scene_info_path": "src/envs/rational_choice_theory/scene_info.json",
+    "simenv_path": "src/envs/rational_choice_theory/code/SimEnv.py"
+  },
+  {
+    "id": "rebellion",
+    "name": "Politics: rebellion",
+    "category": "Politics",
+    "description": "The model simulates individual rebellion behavior against unjust regimes to study how different repression strategies affect social stability. Citizens who may participate in rebellion and the Government responsible for maintaining order and deciding repression strategies. A societal setting where citizens and government interact, with citizens evaluating their grievances and the government implementing repression.",
+    "inputs_hint": [
+      "Citizen",
+      "Government"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Grievance_Level",
+        "name": "Average Grievance Level",
+        "description": "Measures the average level of grievance among citizens, indicating potential unrest."
+      },
+      {
+        "id": "Rebellion_Decision_Ratio",
+        "name": "Rebellion Decision Ratio",
+        "description": "Tracks the proportion of citizens deciding to rebel, reflecting the effectiveness of government strategies."
+      }
+    ],
+    "scene_info_path": "src/envs/rebellion/scene_info.json",
+    "simenv_path": "src/envs/rebellion/code/SimEnv.py"
+  },
+  {
+    "id": "reciprocal_altruism_theory",
+    "name": "Sociology: reciprocal_altruism_theory",
+    "category": "Sociology",
+    "description": "The goal of the simulation is to model how reciprocal behaviors in a social network can promote the spread of healthy behaviors. Individual A as a health behavior advocate, Individual B as a recipient of health behavior change, Community Network as a facilitator of behavior spread. The environment is a social network representing a community where reciprocal behaviors and health information are exchanged.",
+    "inputs_hint": [
+      "HealthBehaviorAdvocate",
+      "BehaviorChangeRecipient",
+      "CommunityNetworkFacilitator"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "health_behavior_spread_completion_rate",
+        "name": "health_behavior_spread_completion_rate",
+        "description": "Measures the proportion of completed health behavior spread efforts within the community network."
+      },
+      {
+        "id": "average_behavior_change_intensity",
+        "name": "average_behavior_change_intensity",
+        "description": "Calculates the average intensity of health behavior changes initiated by advocates."
+      },
+      {
+        "id": "commitment_level_distribution",
+        "name": "commitment_level_distribution",
+        "description": "Shows the distribution of commitment levels among recipients of health behavior changes."
+      }
+    ],
+    "scene_info_path": "src/envs/reciprocal_altruism_theory/scene_info.json",
+    "simenv_path": "src/envs/reciprocal_altruism_theory/code/SimEnv.py"
+  },
+  {
+    "id": "scientific_management_theory",
+    "name": "Organization: scientific_management_theory",
+    "category": "Organization",
+    "description": "The goal of the simulation is to explore Taylor's scientific management principles by simulating task allocation, standardized operations, and incentive measures to enhance work efficiency and productivity. The simulation includes interactions between workers and managers, analyzing how managers optimize workflows through scientific analysis and decision-making, and motivate employees for higher productivity. Agents represent employees or managers within an organization. Worker Agents execute specific tasks influenced by task allocation, standardized workflows, and incentive mechanisms. Manager Agents design workflows, allocate tasks, set incentives, and supervise workers to enhance efficiency. The environment models a workplace where interactions between workers and managers occur, focusing on task distribution, workflow standardization, and incentive implementation to improve productivity.",
+    "inputs_hint": [
+      "WorkerAgent",
+      "ManagerAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Worker_Performance",
+        "name": "Average Worker Performance",
+        "description": "Measures the average performance of WorkerAgents based on their task completion and performance adjustment statuses."
+      },
+      {
+        "id": "Task_Allocation_Effectiveness",
+        "name": "Task Allocation Effectiveness",
+        "description": "Evaluates how effectively tasks are allocated by comparing task allocation status with worker performance."
+      },
+      {
+        "id": "Incentive_Plan_Utilization",
+        "name": "Incentive Plan Utilization",
+        "description": "Assesses how well the incentive plans are being utilized by comparing the number of incentives planned versus those applied."
+      }
+    ],
+    "scene_info_path": "src/envs/scientific_management_theory/scene_info.json",
+    "simenv_path": "src/envs/scientific_management_theory/code/SimEnv.py"
+  },
+  {
+    "id": "selective_exposure_theory",
+    "name": "Politics: selective_exposure_theory",
+    "category": "Politics",
+    "description": "Simulate voter behavior in choosing specific news sources based on personal preferences to study how selective exposure leads to political polarization among groups, analyzing information bubbles and echo chamber effects. Voters who select media sources and adjust political preferences; Media entities providing political content with potential biases. The environment consists of voters and various media sources with different political biases, where voters can choose which media to consume.",
+    "inputs_hint": [
+      "VoterAgent",
+      "MediaAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "media_bias_distribution",
+        "name": "media_bias_distribution",
+        "description": "Shows the distribution of media bias scores across available media sources."
+      }
+    ],
+    "scene_info_path": "src/envs/selective_exposure_theory/scene_info.json",
+    "simenv_path": "src/envs/selective_exposure_theory/code/SimEnv.py"
+  },
+  {
+    "id": "self_defense_and_excessive_defense",
+    "name": "Law: self_defense_and_excessive_defense",
+    "category": "Law",
+    "description": "The goal is to simulate a simple violent conflict scenario to analyze how to judge if self-defense is reasonable within a legal framework and if excessive defense exists. Three agents: aggressor (attacker), defender (defendee), and judge (adjudicator). A simulated environment involving a violent conflict where the defender faces a threat from the aggressor, and a judge evaluates the situation.",
+    "inputs_hint": [
+      "Aggressor",
+      "Defender",
+      "Judge"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Threat_Level",
+        "name": "Average Threat Level",
+        "description": "Measures the average threat level posed by aggressors in the scenario."
+      },
+      {
+        "id": "Defense_Action_Distribution",
+        "name": "Defense Action Distribution",
+        "description": "Shows the distribution of different types of defensive actions taken by defenders."
+      },
+      {
+        "id": "Judgment_Result_Summary",
+        "name": "Judgment Result Summary",
+        "description": "Summarizes the results of judgments made by the judge, indicating the frequency of different outcomes."
+      }
+    ],
+    "scene_info_path": "src/envs/self_defense_and_excessive_defense/scene_info.json",
+    "simenv_path": "src/envs/self_defense_and_excessive_defense/code/SimEnv.py"
+  },
+  {
+    "id": "simple_policy_implementation_model",
+    "name": "Politics: simple_policy_implementation_model",
+    "category": "Politics",
+    "description": "Simulate the execution process of government policies and study the fundamental mechanisms of policy implementation. Government, Citizens The environment consists of government entities executing policies and citizens reacting to these policies.",
+    "inputs_hint": [
+      "Government",
+      "Citizens"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Government_Policy_Efficiency",
+        "name": "Government Policy Efficiency",
+        "description": "Measures the average efficiency of government policy execution."
+      },
+      {
+        "id": "Citizen_Policy_Acceptance",
+        "name": "Citizen Policy Acceptance",
+        "description": "Represents the average level of citizen acceptance towards government policies."
+      },
+      {
+        "id": "Policy_Strength_Adjustment_Reasons",
+        "name": "Policy Strength Adjustment Reasons",
+        "description": "Analyzes the reasons for adjustments in policy strength by the government."
+      }
+    ],
+    "scene_info_path": "src/envs/simple_policy_implementation_model/scene_info.json",
+    "simenv_path": "src/envs/simple_policy_implementation_model/code/SimEnv.py"
+  },
+  {
+    "id": "sir_model",
+    "name": "Demographics: sir_model",
+    "category": "Demographics",
+    "description": "To extend the SIR model using large language models (LLM) to simulate complex disease transmission processes, incorporating social factors such as government interventions, public health policies, and social network structures to better describe disease spread within populations. Individual agents representing people with health states of susceptible (S), infected (I), or recovered (R); group agents representing social groups like families or communities; government agents implementing policies; healthcare system agents managing treatment and recovery. The environment includes social interactions within and between groups, government policy impacts, healthcare infrastructure, and public health behaviors affecting disease transmission.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "GroupAgent",
+      "GovernmentAgent",
+      "HealthcareSystemAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "infection_rate_over_time",
+        "name": "infection_rate_over_time",
+        "description": "Tracks the percentage of IndividualAgents currently infected (I) over time to monitor disease spread."
+      },
+      {
+        "id": "policy_effectiveness",
+        "name": "policy_effectiveness",
+        "description": "Evaluates the effectiveness of government policies based on the proportion of policies that are active and their reported effects."
+      },
+      {
+        "id": "healthcare_treatment_success_rate",
+        "name": "healthcare_treatment_success_rate",
+        "description": "Monitors the success rate of treatments managed by HealthcareSystemAgents based on recovery statuses."
+      }
+    ],
+    "scene_info_path": "src/envs/sir_model/scene_info.json",
+    "simenv_path": "src/envs/sir_model/code/SimEnv.py"
+  },
+  {
+    "id": "social_capital_theory",
+    "name": "Sociology: social_capital_theory",
+    "category": "Sociology",
+    "description": "Study how social capital flows between individuals and influences cooperation, trust, and resource access. Individuals with varying levels of social capital; Social Network representing relationships between individuals. A social network environment where individuals interact based on their social capital and relationships.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "SocialNetworkAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Social_Capital",
+        "name": "Average Social Capital",
+        "description": "Measures the average social capital of all individual agents in the system."
+      },
+      {
+        "id": "Cooperation_Rate",
+        "name": "Cooperation Rate",
+        "description": "Represents the proportion of individual agents that have a positive cooperation potential."
+      },
+      {
+        "id": "Resource_Access_Decisions",
+        "name": "Resource Access Decisions",
+        "description": "Tracks the number of agents making each type of decision regarding resource access."
+      }
+    ],
+    "scene_info_path": "src/envs/social_capital_theory/scene_info.json",
+    "simenv_path": "src/envs/social_capital_theory/code/SimEnv.py"
+  },
+  {
+    "id": "social_contract_theory",
+    "name": "Politics: social_contract_theory",
+    "category": "Politics",
+    "description": "Use large language models to simulate social contract theory and explore its effects on individual freedom, government power, and social order. Individual agents, government agents, social group agents, contract breakdown agents, public policy agents. Simulated environments based on different social contract theories such as Hobbes, Locke, and Rousseau, exploring individual and government interactions.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "GovernmentAgent",
+      "SocialGroupAgent",
+      "ContractBreakdownAgent",
+      "PublicPolicyAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Agent_Negotiation_Success_Rate",
+        "name": "Agent Negotiation Success Rate",
+        "description": "Measures the proportion of successful negotiations by Individual Agents."
+      },
+      {
+        "id": "Government_Enforcement_Rate",
+        "name": "Government Enforcement Rate",
+        "description": "Tracks the enforcement status of laws by Government Agents over time."
+      },
+      {
+        "id": "Public_Policy_Impact_Analysis",
+        "name": "Public Policy Impact Analysis",
+        "description": "Evaluates the results of impact analyses conducted by Public Policy Agents."
+      }
+    ],
+    "scene_info_path": "src/envs/social_contract_theory/scene_info.json",
+    "simenv_path": "src/envs/social_contract_theory/code/SimEnv.py"
+  },
+  {
+    "id": "social_influence_and_conformity_simulation",
+    "name": "Psychology: social_influence_and_conformity_simulation",
+    "category": "Psychology",
+    "description": "Simulate conformity behavior and social influence processes in group environments, studying information cascades, collective decision biases, minority influence mechanisms, and how individual traits and environmental factors modulate the degree of conformity. Includes Individuals with attributes like id, conformity tendency, self-confidence, status, belief certainty, opinion visibility, decision history, social ties, openness, and threshold; Groups with attributes such as id, members, cohesion, norms, majority threshold, communication structure, homogeneity, and decision method; Opinion Leaders characterized by charisma, credibility, visibility, consistency, strategic thinking, and followers; Decision Contexts encompassing type, ambiguity, stakes, time pressure, feedback immediacy, and objective truth. Encompasses social pressure, information availability, uncertainty level, cultural setting, and anonymity level, providing a comprehensive backdrop for agent interactions and decision-making.",
+    "inputs_hint": [
+      "IndividualAgent",
+      "GroupAgent",
+      "OpinionLeaderAgent",
+      "DecisionContextAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Conformity_Tendency",
+        "name": "Average Conformity Tendency",
+        "description": "Measures the average tendency of individual agents to conform within the system, providing insight into overall conformity behavior."
+      },
+      {
+        "id": "System_Social_Pressure",
+        "name": "System Social Pressure",
+        "description": "Tracks the level of social pressure in the environment, which influences agent decision-making and conformity."
+      },
+      {
+        "id": "Opinion_Leader_Influence_Strength_Distribution",
+        "name": "Opinion Leader Influence Strength Distribution",
+        "description": "Analyzes the distribution of influence strength among opinion leaders, indicating their potential impact on group dynamics."
+      }
+    ],
+    "scene_info_path": "src/envs/conformity_behavior_model/scene_info.json",
+    "simenv_path": "src/envs/conformity_behavior_model/code/SimEnv.py"
+  },
+  {
+    "id": "social_relations_theory",
+    "name": "Organization: social_relations_theory",
+    "category": "Organization",
+    "description": "The goal of this simulation is to use LLMs to simulate how employees in an organization are influenced by social relationships, team interactions, and experiences of being noticed, impacting their work motivation, job satisfaction, and productivity. The simulation focuses on interactions between employees, leaders, and the organizational environment, exploring how social relationships, sense of belonging, and teamwork affect employee work behavior. Each agent represents an employee who can exhibit different behaviors, emotional responses, and work motivations. Agents have social and emotional needs, and the quality of their relationships with colleagues and leaders significantly impacts their job satisfaction and motivation. The environment simulates the organizational setting where employees interact with leaders, colleagues, and the broader organizational context. It includes elements such as social interactions, team dynamics, leadership styles, and feedback mechanisms that influence employee behavior and emotions.",
+    "inputs_hint": [
+      "NewEmployee",
+      "ExperiencedEmployee",
+      "NeutralMember",
+      "TeamLeader",
+      "EmotionalAnalyzer"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Distribution_of_Emotional_Results_from_Emotional_Analyzer",
+        "name": "Distribution of Emotional Results from Emotional Analyzer",
+        "description": "This metric shows the distribution of different emotional states among experienced employees, indicating the emotional climate within the organization."
+      }
+    ],
+    "scene_info_path": "src/envs/social_relations_theory/scene_info.json",
+    "simenv_path": "src/envs/social_relations_theory/code/SimEnv.py"
+  },
+  {
+    "id": "social_resource_exchange_network",
+    "name": "Sociology: social_resource_exchange_network",
+    "category": "Sociology",
+    "description": "Simulate reciprocal behaviors and social capital accumulation in social resource exchange networks, study how different initial resource endowments and exchange rules lead to social stratification, and explore mechanisms of social mobility and intergenerational transmission. 1. Family: characterized by id, members, collective resources, inheritance rules, education investment, social status, and residential area. 2. Educational Institution: characterized by type, quality, admission criteria, tuition fees, prestige, and alumni network. The environment includes variables such as inequality index, social mobility rate, meritocracy level, welfare system strength, and economic growth rate.",
+    "inputs_hint": [
+      "Family",
+      "EducationalInstitution"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Family_Education_Investment_Ratio",
+        "name": "Family Education Investment Ratio",
+        "description": "This metric measures the ratio of resources allocated to education versus total collective resources within families, indicating the prioritization of educational investments."
+      },
+      {
+        "id": "Student_Candidate_Selection_Effectiveness",
+        "name": "Student Candidate Selection Effectiveness",
+        "description": "This metric evaluates the effectiveness of educational institutions in selecting candidates by comparing the number of candidates evaluated versus those hired."
+      }
+    ],
+    "scene_info_path": "src/envs/social_stratification_network/scene_info.json",
+    "simenv_path": "src/envs/social_stratification_network/code/SimEnv.py"
+  },
+  {
+    "id": "theory_of_planned_behavior",
+    "name": "Psychology: theory_of_planned_behavior",
+    "category": "Psychology",
+    "description": "Simulate the core mechanisms of the Theory of Planned Behavior (TPB) using a large language model (LLM) to explore the interactions between attitude, subjective norm, and perceived behavioral control in forming behavioral intentions and predicting actual behavior. Agents represent individuals with cognitive capabilities whose behavioral intentions are influenced by TPB components. The environment provides context with social norms such as group pressure and situational constraints like resource availability.",
+    "inputs_hint": [
+      "CognitiveAgent",
+      "SocialNormAgent",
+      "EnvironmentalAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Behavioral_Intentions",
+        "name": "Average Behavioral Intentions",
+        "description": "Measures the average behavioral intentions across all CognitiveAgents, providing insight into the overall inclination towards certain behaviors in the system."
+      },
+      {
+        "id": "Resource_Availability_vs__Social_Norms_Impact",
+        "name": "Resource Availability vs. Social Norms Impact",
+        "description": "Compares the average resource availability with the average social norms score to understand how environmental resources and social pressures are balancing each other."
+      },
+      {
+        "id": "Completion_Status_Distribution",
+        "name": "Completion Status Distribution",
+        "description": "Shows the distribution of completion statuses across all CognitiveAgents to assess how many agents have completed their tasks successfully."
+      }
+    ],
+    "scene_info_path": "src/envs/theory_of_planned_behavior/scene_info.json",
+    "simenv_path": "src/envs/theory_of_planned_behavior/code/SimEnv.py"
+  },
+  {
+    "id": "tort_law_and_compensation",
+    "name": "Law: tort_law_and_compensation",
+    "category": "Law",
+    "description": "Simulate compensation mechanisms in tort cases to explore how different compensation types affect case decisions and behaviors of parties involved. Plaintiff (victim), Defendant (tortfeasor), Judge (decision-maker) A simulated legal environment where agents interact based on roles in a tort case scenario.",
+    "inputs_hint": [
+      "Plaintiff",
+      "Defendant",
+      "Judge"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Compensation_Awarded",
+        "name": "Average Compensation Awarded",
+        "description": "Measures the average compensation awarded across all cases."
+      },
+      {
+        "id": "Plaintiff_Compensation_Request_Submission_Rate",
+        "name": "Plaintiff Compensation Request Submission Rate",
+        "description": "Tracks the rate at which plaintiffs submit compensation requests."
+      },
+      {
+        "id": "Evidence_Utilization_by_Defendant",
+        "name": "Evidence Utilization by Defendant",
+        "description": "Analyzes how defendants utilize counter evidence in their defense."
+      }
+    ],
+    "scene_info_path": "src/envs/tort_law_and_compensation/scene_info.json",
+    "simenv_path": "src/envs/tort_law_and_compensation/code/SimEnv.py"
+  },
+  {
+    "id": "two_step_flow_model",
+    "name": "Communication: two_step_flow_model",
+    "category": "Communication",
+    "description": "Simulate how information spreads in society and validate the two-step flow model hypothesis. Media agent, opinion leader agents, and public agents. A social network where agents are connected, with stronger connections between opinion leaders and weaker ones among public agents.",
+    "inputs_hint": [
+      "MediaAgent",
+      "OpinionLeaderAgent",
+      "PublicAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Information_Spread_Success_Rate",
+        "name": "Information Spread Success Rate",
+        "description": "Measures the percentage of public agents that have received any information."
+      },
+      {
+        "id": "Opinion_Modification_Rate",
+        "name": "Opinion Modification Rate",
+        "description": "Tracks how often opinion leaders modify the information before passing it to public agents."
+      },
+      {
+        "id": "Agent_Communication_Load",
+        "name": "Agent Communication Load",
+        "description": "Evaluates the distribution of communication load among opinion leaders by counting how many public agents each opinion leader targets."
+      }
+    ],
+    "scene_info_path": "src/envs/two_step_flow_model/scene_info.json",
+    "simenv_path": "src/envs/two_step_flow_model/code/SimEnv.py"
+  },
+  {
+    "id": "unjust_enrichment",
+    "name": "Law: unjust_enrichment",
+    "category": "Law",
+    "description": "To simulate scenarios of unjust enrichment and explore legal rules for resolution without contractual relationships. Plaintiff (victim seeking return of unjust enrichment), Defendant (party benefiting from unjust enrichment), Judge (adjudicates the case). A legal simulation environment involving cases of unjust enrichment without contractual agreements.",
+    "inputs_hint": [
+      "Plaintiff",
+      "Defendant",
+      "Judge"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Case_Completion_Status_Distribution",
+        "name": "Case Completion Status Distribution",
+        "description": "This metric shows the distribution of cases based on their completion status, providing insights into how many cases are completed, pending, or in other states."
+      },
+      {
+        "id": "Evidence_Submission_Rate",
+        "name": "Evidence Submission Rate",
+        "description": "This metric tracks the rate of evidence submission by Plaintiffs, indicating how actively Plaintiffs are engaging in the process."
+      },
+      {
+        "id": "Judgment_Result_Trends",
+        "name": "Judgment Result Trends",
+        "description": "This metric shows the trend of different judgment results over time, providing insights into the outcomes of cases."
+      }
+    ],
+    "scene_info_path": "src/envs/unjust_enrichment/scene_info.json",
+    "simenv_path": "src/envs/unjust_enrichment/code/SimEnv.py"
+  },
+  {
+    "id": "uses_and_gratifications_theory",
+    "name": "Communication: uses_and_gratifications_theory",
+    "category": "Communication",
+    "description": "Simulate how audiences choose and use different types of media based on personal needs to validate the basic assumptions of the uses and gratifications theory. Audience Agents representing individuals with varying needs and preferences, and Media Agents representing different media types. A diverse media environment where agents interact with multiple media types to satisfy varying needs such as entertainment, information, and social interaction.",
+    "inputs_hint": [
+      "AudienceAgent",
+      "MediaAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "average_satisfaction_level",
+        "name": "average_satisfaction_level",
+        "description": "Measures the average satisfaction level of AudienceAgents with the media they consume."
+      },
+      {
+        "id": "media_type_selection_distribution",
+        "name": "media_type_selection_distribution",
+        "description": "Shows the distribution of selected media types by AudienceAgents."
+      },
+      {
+        "id": "feedback_satisfaction_correlation",
+        "name": "feedback_satisfaction_correlation",
+        "description": "Analyzes the correlation between feedback history and satisfaction levels of AudienceAgents."
+      }
+    ],
+    "scene_info_path": "src/envs/uses_and_gratifications_theory/scene_info.json",
+    "simenv_path": "src/envs/uses_and_gratifications_theory/code/SimEnv.py"
+  },
+  {
+    "id": "voting",
+    "name": "Politics: voting",
+    "category": "Politics",
+    "description": "Analyze how collective voting decisions produce results and how different voting rules affect fairness and efficiency in social choices. Voters who are agents deciding whether to vote and whom to vote for. A voting environment where voters have preferences for candidates or policies and decide their participation based on certain rules.",
+    "inputs_hint": [
+      "VoterAgent",
+      "VotingEnvironmentAgent"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Candidate_Selection_Distribution",
+        "name": "Candidate Selection Distribution",
+        "description": "Examines the distribution of selected candidates among the voters."
+      }
+    ],
+    "scene_info_path": "src/envs/voting/scene_info.json",
+    "simenv_path": "src/envs/voting/code/SimEnv.py"
+  },
+  {
+    "id": "work_hours_and_overtime_in_labor_law",
+    "name": "Law: work_hours_and_overtime_in_labor_law",
+    "category": "Law",
+    "description": "Simulate a labor dispute case to explore the balance of rights between employees and employers regarding work hours and overtime pay. Employee, Employer, Judge A simulated legal environment where labor law is applied to resolve disputes concerning work hours and overtime pay.",
+    "inputs_hint": [
+      "Employee",
+      "Employer",
+      "Judge"
+    ],
+    "outputs_metrics": [
+      {
+        "id": "Average_Overtime_Hours_per_Employee",
+        "name": "Average Overtime Hours per Employee",
+        "description": "This metric calculates the average number of overtime hours claimed by employees."
+      },
+      {
+        "id": "Ruling_Outcome_Distribution",
+        "name": "Ruling Outcome Distribution",
+        "description": "This metric shows the distribution of different ruling outcomes in the simulation."
+      },
+      {
+        "id": "Legal_References_Usage",
+        "name": "Legal References Usage",
+        "description": "This metric tracks how often different legal references are cited during the simulation."
+      }
+    ],
+    "scene_info_path": "src/envs/work_hours_and_overtime_in_labor_law/scene_info.json",
+    "simenv_path": "src/envs/work_hours_and_overtime_in_labor_law/code/SimEnv.py"
+  }
+]

@@ -1,0 +1,124 @@
+【使用说明】
+1. 用 Word 打开初稿，定位「3.3 编排器的实现」，删除原 3.3～3.4 全文，粘贴本节。
+2. 在「3.5 运行结果与可视化」处插入三张 PNG（先运行 scripts\generate_thesis_figures.ps1）。
+3. 代码块在 Word 中可用「插入 → 文本框」或 Courier New 五号字，标题为「代码3-x」。
+
+————————————————————————————————————————
+3.3 编排器的实现
+————————————————————————————————————————
+
+仿真编排器为本课题在 YuLan-OneSim 仓库中实现的子系统，源码目录为 src/orchestrator/，与 YuLan 原有场景库 src/envs/ 分离：编排器只读取场景元数据（scene_info.json）及 SimEnv.py 摘录，不修改任何原始仿真器文件。整体为「需求拆解 → 场景匹配 → 胶水代码生成」三阶段流水线，命令行入口为 run.py，一键演示与出图为 demo.py。
+
+3.3.1 需求分析模块
+
+实现文件：src/orchestrator/decomposer.py。
+
+输入为用户自然语言需求（UTF-8）；输出为 JSON：
+
+{"subtasks": [{"id": "t1", "title": "社交网络初始化", "description": "..."}, ...]}
+
+在线模式通过 llm_client.chat_json 调用 OpenAI Chat Completions（环境变量 ORCHESTRATOR_MODEL，默认 gpt-4o）。离线验收时设置 ORCHESTRATOR_NO_LLM=1，对含「谣言、信谣、转发、恐慌、辟谣」等词的需求，调用 heuristic_rumor_subtasks() 返回五类子任务：网络初始化、级联转发、情绪感染、扩散动力学、辟谣与统计。简化实验使用命令行参数 --simple-rumor 固定上述子任务骨架。
+
+代码3-1 需求拆解入口（节选）：
+
+def decompose_requirement(user_requirement: str) -> Dict[str, Any]:
+    if no_llm_mode():
+        return {"subtasks": _fallback_subtasks(user_requirement)}
+    raw = chat_json(model, system_prompt, user_requirement)
+    return json.loads(raw)
+
+3.3.2 工具匹配模块
+
+实现文件：src/orchestrator/matcher.py、manifest_builder.py。
+
+清单生成：执行 python -m orchestrator.manifest_builder，扫描 src/envs/*/scene_info.json，生成 src/orchestrator/simulator_manifest.json（50 条记录），字段包括 id、category、description、simenv_path、outputs_metrics 等。并非遍历 .py 文件注释。
+
+匹配算法：将子任务「标题+描述」作为查询，将清单项「类别+名称+描述」作为文档，计算 TF-IDF 加权余弦相似度（函数 cosine_tf_idf_sim），取最高分场景；网络初始化、统计输出等元任务可标记 needs_generated_stub，由胶水层实现。
+
+本文简化实验不依赖自动排序，而使用：
+
+--fixed-simulators emotional_contagion_model information_cascade_and_silence diffusion_of_innovations
+
+匹配报告可写入 output/orchestration_plan.json（参数 --plan-json）。
+
+表3-1 谣言传播实验选用的基础仿真器（与清单 ID 一致）
+场景 ID	中文名称	领域	在本需求中的角色
+emotional_contagion_model	情绪感染模型	心理学	恐慌情绪在邻居信谣者间传染
+information_cascade_and_silence	信息级联与沉默	传播学	根据邻居信谣比例决定转发（级联）
+diffusion_of_innovations	创新扩散理论	传播学	信谣者密度调节传播强度（扩散语义）
+
+3.3.3 代码生成模块
+
+实现文件：src/orchestrator/glue_generator.py、glue_templates.py。
+
+在线模式：将用户需求、子任务、匹配场景 ID、scene_info 描述及 SimEnv.py 摘录拼入提示词，由大模型生成单一 Python 文件。离线模式：填充 rumor_propagation_glue_code 模板，生成类 RumorPropagationSimulator。
+
+重要说明：YuLan 各场景运行时类名均为 SimEnv，继承 BasicSimEnv，依赖事件总线与模型配置。胶水脚本不在无配置情况下实例化 SimEnv，而以 NumPy 实现与三场景语义一致的简化递推模型，并在注释中标明场景 ID。完整多智能体仿真仍通过项目 main.py 启动。
+
+生成产物示例：output/generated_rumor_simulator.py。
+
+代码3-2 信息级联转发适配（对应 information_cascade_and_silence）：
+
+share = float(np.mean([believer[j] for j in neighbors]))
+prob = base_prob * (0.5 + share) * (0.6 + 0.4 * panic[i]) * trust[i]
+if np.random.rand() < prob:
+    new_believer[i] = True
+    forwards += 1
+
+代码3-3 情绪感染适配（对应 emotional_contagion_model）：
+
+target = float(np.mean([panic[j] for j in infected_neighbors]))
+updated[i] += contagion_coef * (target - panic[i])
+
+代码3-4 主类每轮仿真顺序（RumorPropagationSimulator.run）：
+
+believer, forwards = adapt_cascade_forward(...)      # 级联转发
+panic = adapt_emotional_contagion(...)               # 恐慌传染
+if t >= debunk_round:
+    believer[recover_mask] = False                   # 辟谣恢复
+
+3.3.4 接口适配与数据结构
+
+统一采用邻接表表示社交网络（build_random_graph，Erdős–Rényi 随机图，平均度可配）。用户状态用 NumPy 数组：believer（是否信谣）、panic（恐慌程度 0～1）、trust（信任度）。每轮在同一时间步内顺序执行级联、感染、辟谣，避免多 SimEnv 实例之间的接口不一致。
+
+3.3.5 命令行运行方式
+
+在仓库根目录 D:\yulan\YuLan-OneSim 执行：
+
+（1）生成清单：set PYTHONPATH=src 后 python -m orchestrator.manifest_builder
+
+（2）离线编排并出图：set ORCHESTRATOR_NO_LLM=1 后执行 scripts\generate_thesis_figures.ps1
+
+或：
+
+python -m orchestrator.run --requirement-file examples\requirement_rumor_propagation.txt --simple-rumor -o output\generated_rumor_simulator.py --plan-json output\orchestration_plan.json --run-after
+
+有 API Key 时设置 OPENAI_API_KEY，去掉 ORCHESTRATOR_NO_LLM，即可用 GPT-4o 做真实拆解与生成。
+
+3.4 组合仿真器结构
+
+生成脚本结构包括：（1）MANIFEST_CHAIN 记录三场景 ID；（2）适配函数 build_random_graph、adapt_cascade_forward、adapt_emotional_contagion、adapt_diffusion_boost；（3）类 RumorPropagationSimulator，构造参数 n_users=100、n_rounds=30、initial_believers=1、base_spread_prob=0.3、debunk_round=10 等；（4）plot() 保存 matplotlib 图表；（5）main 打印 JSON 摘要。
+
+3.5 运行结果与可视化
+
+在基准参数下运行组合仿真器，得到三类时间序列。图3-1 为信谣者数量曲线：初期增长缓慢，中期因正反馈快速上升，第10轮辟谣介入（图中竖虚线）后增速放缓并在后期回落。图3-2 为恐慌情绪均值，峰值多出现在爆发期且略早于信谣者峰值。图3-3 为每轮新发生转发次数，呈先升后降单峰，辟谣后新增转发显著减少。
+
+【此处插入图片】docs\thesis_figures\fig_3_1_believers_over_time.png
+图3-1 信谣者数量随仿真轮次的变化
+
+【此处插入图片】docs\thesis_figures\fig_3_2_mean_panic_over_time.png
+图3-2 恐慌情绪均值随仿真轮次的变化
+
+【此处插入图片】docs\thesis_figures\fig_3_3_forward_count_over_time.png
+图3-3 每轮转发行为数量
+
+控制台输出示例包含 peak_num_believers（峰值信谣者数）、final_num_believers（末轮信谣者数）、debunk_round 等字段，与 4.2 节文字分析一致。
+
+表3-2 编排器主要源文件
+文件名	功能
+decomposer.py	步骤1：需求拆解
+matcher.py	步骤2：TF-IDF 场景匹配
+manifest_builder.py	生成 simulator_manifest.json
+glue_generator.py / glue_templates.py	步骤3：生成 RumorPropagationSimulator
+run.py	命令行入口
+demo.py	一键演示与论文插图

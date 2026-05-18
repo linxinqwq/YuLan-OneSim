@@ -1,0 +1,65 @@
+{
+  "subtasks": [
+    {
+      "id": "t1",
+      "title": "社交网络初始化",
+      "description": "创建用户节点与关注/好友关系，确定初始信谣者。"
+    },
+    {
+      "id": "t2",
+      "title": "信息传播与级联转发",
+      "description": "信谣者向邻居转发谣言；邻居根据观察到的转发量决定是否跟随转发（信息级联）。"
+    },
+    {
+      "id": "t3",
+      "title": "恐慌情绪感染",
+      "description": "用户与信谣者接触时恐慌值向信谣者靠近，情绪升高提高相信与转发概率。"
+    },
+    {
+      "id": "t4",
+      "title": "谣言扩散动力学",
+      "description": "记录每轮新增信谣者，刻画扩散过程的时序演化（创新扩散式 S 形过程）。"
+    },
+    {
+      "id": "t5",
+      "title": "辟谣干预与统计输出",
+      "description": "在指定轮次广播辟谣，部分信谣者恢复；汇总信谣者数、恐慌均值、转发次数并绘图。"
+    }
+  ],
+  "matches": [
+    {
+      "subtask": {
+        "id": "t1",
+        "title": "社交网络初始化",
+        "description": "创建用户节点与关注/好友关系，确定初始信谣者。"
+      },
+      "simulator_id": "emotional_contagion_model",
+      "simulator_path": "src/envs/emotional_contagion_model/code/SimEnv.py",
+      "match_score": 1.0,
+      "needs_generated_stub": false
+    },
+    {
+      "subtask": {
+        "id": "t2",
+        "title": "信息传播与级联转发",
+        "description": "信谣者向邻居转发谣言；邻居根据观察到的转发量决定是否跟随转发（信息级联）。"
+      },
+      "simulator_id": "information_cascade_and_silence",
+      "simulator_path": "src/envs/information_cascade_and_silence/code/SimEnv.py",
+      "match_score": 1.0,
+      "needs_generated_stub": false
+    },
+    {
+      "subtask": {
+        "id": "t3",
+        "title": "恐慌情绪感染",
+        "description": "用户与信谣者接触时恐慌值向信谣者靠近，情绪升高提高相信与转发概率。"
+      },
+      "simulator_id": "diffusion_of_innovations",
+      "simulator_path": "src/envs/diffusion_of_innovations/code/SimEnv.py",
+      "match_score": 1.0,
+      "needs_generated_stub": false
+    }
+  ],
+  "code": "\"\"\"\n谣言传播与恐慌扩散 — 组合仿真（编排器生成）\n匹配 YuLan 场景 ID: [\"emotional_contagion_model\", \"information_cascade_and_silence\", \"diffusion_of_innovations\"]\n需求摘要: 请生成一个社交网络谣言传播与恐慌扩散的组合仿真器。网络中有若干用户，最初少数用户接触未经证实的消息并成为信谣者；信谣者以一定概率向邻居转发，传播概率受恐慌情绪影响；恐慌情绪在接触信谣者时升高；若干轮后官方广播辟谣，部分信谣者转为不信谣者。需要输出每轮信谣者数量、恐慌情绪均值、转发次数，并绘制随时间变化的曲线。\n\n\"\"\"\nfrom __future__ import annotations\n\nimport json\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nimport numpy as np\n\ntry:\n    import matplotlib.pyplot as plt\n    HAS_MPL = True\nexcept ImportError:\n    HAS_MPL = False\n\nMANIFEST_CHAIN = [\"emotional_contagion_model\", \"information_cascade_and_silence\", \"diffusion_of_innovations\"]\n\n\ndef build_random_graph(n: int, avg_degree: float, rng: np.random.RandomState) -> List[List[int]]:\n    \"\"\"社交网络邻接表（无向）。\"\"\"\n    p = min(avg_degree / max(n - 1, 1), 1.0)\n    adj: List[List[int]] = [[] for _ in range(n)]\n    for i in range(n):\n        for j in range(i + 1, n):\n            if rng.rand() < p:\n                adj[i].append(j)\n                adj[j].append(i)\n    for i in range(n):\n        if not adj[i]:\n            j = (i + 1) % n\n            adj[i].append(j)\n            adj[j].append(i)\n    return adj\n\n\ndef adapt_cascade_forward(\n    believer: np.ndarray,\n    adj: List[List[int]],\n    base_prob: float,\n    panic: np.ndarray,\n    trust: np.ndarray,\n) -> Tuple[np.ndarray, int]:\n    \"\"\"\n    information_cascade_and_silence：观察邻居中信谣者比例，决定是否转发。\n    返回本轮新成为信谣者的掩码及转发次数。\n    \"\"\"\n    n = len(believer)\n    new_believer = believer.copy()\n    forwards = 0\n    for i in range(n):\n        if believer[i]:\n            continue\n        neighbors = adj[i]\n        if not neighbors:\n            continue\n        share = float(np.mean([believer[j] for j in neighbors]))\n        prob = base_prob * (0.5 + share) * (0.6 + 0.4 * panic[i]) * trust[i]\n        prob = float(np.clip(prob, 0.0, 0.95))\n        if np.random.rand() < prob:\n            new_believer[i] = True\n            forwards += 1\n    return new_believer, forwards\n\n\ndef adapt_emotional_contagion(\n    panic: np.ndarray,\n    believer: np.ndarray,\n    adj: List[List[int]],\n    contagion_coef: float,\n) -> np.ndarray:\n    \"\"\"emotional_contagion_model：恐慌情绪向邻居传染。\"\"\"\n    n = len(panic)\n    updated = panic.copy()\n    for i in range(n):\n        infected_neighbors = [j for j in adj[i] if believer[j]]\n        if not infected_neighbors:\n            continue\n        target = float(np.mean([panic[j] for j in infected_neighbors]))\n        updated[i] += contagion_coef * (target - panic[i])\n    return np.clip(updated, 0.0, 1.0)\n\n\ndef adapt_diffusion_boost(\n    believer: np.ndarray,\n    base_prob: float,\n    adoption_density: float,\n) -> float:\n    \"\"\"diffusion_of_innovations：采纳密度越高，边际传播越强（S 形扩散语义）。\"\"\"\n    return float(np.clip(base_prob * (1.0 + 0.8 * adoption_density), 0.05, 0.99))\n\n\nclass RumorPropagationSimulator:\n    \"\"\"高层组合仿真器：谣言传播 + 恐慌感染 + 辟谣干预。\"\"\"\n\n    def __init__(\n        self,\n        n_users: int = 100,\n        n_rounds: int = 30,\n        initial_believers: int = 1,\n        base_spread_prob: float = 0.3,\n        avg_degree: float = 4.0,\n        contagion_coef: float = 0.2,\n        debunk_round: int = 10,\n        debunk_recovery_prob: float = 0.35,\n    ) -> None:\n        self.n_users = n_users\n        self.n_rounds = n_rounds\n        self.initial_believers = initial_believers\n        self.base_spread_prob = base_spread_prob\n        self.avg_degree = avg_degree\n        self.contagion_coef = contagion_coef\n        self.debunk_round = debunk_round\n        self.debunk_recovery_prob = debunk_recovery_prob\n        self.manifest_chain = list(MANIFEST_CHAIN)\n\n    def run(self, seed: int = 42) -> Dict[str, Any]:\n        rng = np.random.RandomState(seed)\n        n = self.n_users\n        adj = build_random_graph(n, self.avg_degree, rng)\n\n        believer = np.zeros(n, dtype=bool)\n        init_ids = rng.choice(n, size=min(self.initial_believers, n), replace=False)\n        believer[init_ids] = True\n\n        panic = rng.uniform(0.1, 0.3, size=n)\n        trust = rng.uniform(0.7, 1.0, size=n)\n\n        hist = {\n            \"round\": [],\n            \"num_believers\": [],\n            \"mean_panic\": [],\n            \"forward_count\": [],\n        }\n\n        for t in range(1, self.n_rounds + 1):\n            density = float(believer.mean())\n            spread_p = adapt_diffusion_boost(believer, self.base_spread_prob, density)\n\n            believer, forwards = adapt_cascade_forward(\n                believer, adj, spread_p, panic, trust\n            )\n            panic = adapt_emotional_contagion(panic, believer, adj, self.contagion_coef)\n\n            if t >= self.debunk_round:\n                recover = (rng.rand(n) < self.debunk_recovery_prob) & believer\n                believer[recover] = False\n                panic[recover] *= 0.5\n\n            hist[\"round\"].append(t)\n            hist[\"num_believers\"].append(int(believer.sum()))\n            hist[\"mean_panic\"].append(float(panic.mean()))\n            hist[\"forward_count\"].append(forwards)\n\n        return {\n            \"manifest_chain\": self.manifest_chain,\n            \"final_num_believers\": int(believer.sum()),\n            \"peak_num_believers\": int(max(hist[\"num_believers\"])),\n            \"debunk_round\": self.debunk_round,\n            \"history\": hist,\n        }\n\n    def plot(self, result: Dict[str, Any], out: Path) -> List[Path]:\n        if not HAS_MPL:\n            return []\n        out.mkdir(parents=True, exist_ok=True)\n        h = result[\"history\"]\n        paths: List[Path] = []\n\n        fig, ax = plt.subplots(figsize=(8, 4))\n        ax.plot(h[\"round\"], h[\"num_believers\"], \"o-\", color=\"#dc2626\", linewidth=2)\n        ax.axvline(result[\"debunk_round\"], color=\"#6b7280\", linestyle=\"--\", label=\"辟谣介入\")\n        ax.set_xlabel(\"仿真轮次\")\n        ax.set_ylabel(\"信谣者数量\")\n        ax.set_title(\"信谣者数量随时间变化\")\n        ax.legend()\n        ax.grid(True, alpha=0.3)\n        p1 = out / \"fig_3_1_believers_over_time.png\"\n        fig.tight_layout()\n        fig.savefig(p1, dpi=150)\n        plt.close(fig)\n        paths.append(p1)\n\n        fig, ax = plt.subplots(figsize=(8, 4))\n        ax.plot(h[\"round\"], h[\"mean_panic\"], \"s-\", color=\"#ea580c\", linewidth=2)\n        ax.axvline(result[\"debunk_round\"], color=\"#6b7280\", linestyle=\"--\", label=\"辟谣介入\")\n        ax.set_xlabel(\"仿真轮次\")\n        ax.set_ylabel(\"恐慌情绪均值\")\n        ax.set_ylim(0, 1)\n        ax.set_title(\"恐慌情绪均值随时间变化\")\n        ax.legend()\n        ax.grid(True, alpha=0.3)\n        p2 = out / \"fig_3_2_mean_panic_over_time.png\"\n        fig.tight_layout()\n        fig.savefig(p2, dpi=150)\n        plt.close(fig)\n        paths.append(p2)\n\n        fig, ax = plt.subplots(figsize=(8, 4))\n        ax.bar(h[\"round\"], h[\"forward_count\"], color=\"#2563eb\", alpha=0.85)\n        ax.axvline(result[\"debunk_round\"], color=\"#6b7280\", linestyle=\"--\", label=\"辟谣介入\")\n        ax.set_xlabel(\"仿真轮次\")\n        ax.set_ylabel(\"本轮转发次数\")\n        ax.set_title(\"转发行为数量随时间变化\")\n        ax.legend()\n        ax.grid(True, alpha=0.3, axis=\"y\")\n        p3 = out / \"fig_3_3_forward_count_over_time.png\"\n        fig.tight_layout()\n        fig.savefig(p3, dpi=150)\n        plt.close(fig)\n        paths.append(p3)\n\n        return paths\n\n\nif __name__ == \"__main__\":\n    out_dir = Path(\"docs/thesis_figures\")\n    sim = RumorPropagationSimulator()\n    res = sim.run()\n    summary = {k: v for k, v in res.items() if k != \"history\"}\n    print(json.dumps(summary, ensure_ascii=False, indent=2))\n    saved = sim.plot(res, out_dir)\n    if saved:\n        print(\"论文插图已保存:\")\n        for p in saved:\n            print(\" \", p.resolve())\n"
+}
